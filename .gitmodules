@@ -1,0 +1,4 @@
+[submodule "utility"]
+	path = utility
+	url = git@bitbucket.org:shaowu/pyutility.git
+	branch = master

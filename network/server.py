@@ -29,7 +29,7 @@ class ClientService:
 
         while self.flag_run:
             try:
-                data = self.connection.recv(1024)
+                data = self.connection.recv(4096)
                 if len(data) != 0:
                     dbg_debug('[{}]: "{}"'.format(self.address, data))
                     self.broadcast(data)

@@ -58,7 +58,7 @@ class Client:
         # self.socket.sendall(b"Hello, world")
         while self.flag_run:
             try:
-                data = self.socket.recv(1024)
+                data = self.socket.recv(4096)
                 if len(data) != 0:
                     pkg = Package.fromBytes(data)
                     self._package_handler(pkg.content)

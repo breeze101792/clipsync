@@ -47,7 +47,8 @@ class Core:
                 clip_buffer = self.clip_ins.getBuffer()
                 if clip_buffer != self.previous_clips:
                     self.previous_clips = clip_buffer
-                    dbg_print("Value changed: %s" % str(self.previous_clips)[:20])
+                    # dbg_print("Value changed: %s" % str(self.previous_clips)[:20])
+                    dbg_print("Value changed: {}\n".format(clip_buffer))
                     srv_client.send(clip_buffer)
                 time.sleep(0.1)
 

@@ -14,7 +14,7 @@ class Core:
         clipmgr = ClipManager()
         self.clip_ins = clipmgr.getClipInstance()
 
-        self.service_threading = None
+        # self.service_threading = None
         self.server_ip = '127.0.0.1'
         self.server_port = 65432
 
@@ -23,18 +23,20 @@ class Core:
         self.server_port = server_port
 
     def start(self):
-        self.service_threading = threading.Thread(target=self.service)
+        # self.service_threading = threading.Thread(target=self._service)
         # self.service_threading.daemon=True
-        self.service_threading.start()
+        # self.service_threading.start()
+        self._service()
 
     def network_callback(self, content):
-        dbg_print(content.__str__)
+        # dbg_print(content.__str__())
         self.previous_clips = content
         self.clip_ins.setBuffer(content)
 
-    def service(self):
+    def _service(self):
         srv_client = Client()
         srv_client.setServerInfo(server_ip=self.server_ip, server_port=self.server_port)
+        srv_client.regPackageHandler(self.network_callback)
         srv_client.start()
         self.flag_run = True
 
@@ -45,7 +47,7 @@ class Core:
                 clip_buffer = self.clip_ins.getBuffer()
                 if clip_buffer != self.previous_clips:
                     self.previous_clips = clip_buffer
-                    print("Value changed: %s" % str(self.previous_clips)[:20])
+                    dbg_print("Value changed: %s" % str(self.previous_clips)[:20])
                     srv_client.send(clip_buffer)
                 time.sleep(0.1)
 

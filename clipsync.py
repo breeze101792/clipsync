@@ -3,6 +3,7 @@
 import sys
 import traceback
 from optparse import OptionParser
+import time
 # import os
 # import subprocess as sp
 # import time
@@ -43,9 +44,21 @@ def main():
         # DebugSetting.setDbgLevel('Disable')
 
     if options.server is True:
-        srv = Server()
-        srv.start()
-        srv.setServerInfo(server_ip=options.server_ip, server_port=options.server_port)
+        try:
+            srv = Server()
+            srv.setServerInfo(server_ip=options.server_ip, server_port=options.server_port)
+            srv.start()
+
+        except (KeyboardInterrupt):
+            dbg_info("clipsync: exit")
+        except Exception as e:
+            dbg_error(e)
+
+            traceback_output = traceback.format_exc()
+            dbg_error(traceback_output)
+        finally:
+            srv.quit()
+            sys.exit()
     else:
         core = Core()
         core.setServerInfo(server_ip=options.server_ip, server_port=options.server_port)

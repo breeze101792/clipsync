@@ -11,8 +11,10 @@ class ClientService:
         self.address = address
         self.broadcast = broadcast
         self.interval = 0.1
+        self.timeout = 0.1
 
         self.flag_run = False
+        self.connection.settimeout(self.timeout)
     def start(self):
         self._service()
     def quit(self):
@@ -33,6 +35,8 @@ class ClientService:
                     self.broadcast(data)
                 else:
                     time.sleep(self.interval)
+            except socket.timeout as e:
+                continue
             except BrokenPipeError as e:
                 dbg_debug('[{}]'.format(self.address), e)
             except Exception as e:
@@ -49,11 +53,12 @@ class Server:
     def __init__(self):
         self.flag_run = False
         self.interval = 0.1
+        self.timeout = 0.1
         self.server_ip = '127.0.0.1'
         self.server_port = 65432
 
         self.socket = None
-        self.service_threading = None
+        # self.service_threading = None
         self.client_service = []
 
     def setServerInfo(self, server_ip = '127.0.0.1', server_port=65432):
@@ -74,9 +79,10 @@ class Server:
         self.flag_run = False
         # self.service_threading.join()
     def start(self):
-        self.service_threading = threading.Thread(target=self._service)
+        # self.service_threading = threading.Thread(target=self._service)
         # self.service_threading.daemon=True
-        self.service_threading.start()
+        # self.service_threading.start()
+        self._service()
 
     def broadcast(self, package):
         self._wait_connection()
@@ -102,7 +108,7 @@ class Server:
         self.flag_run = True
 
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        # self.socket.settimeout(self.timeout)
+        self.socket.settimeout(self.timeout)
         # with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as skt:
 
         self.socket.bind((self.server_ip, self.server_port))
@@ -121,6 +127,8 @@ class Server:
                 client_thread.start()
 
                 time.sleep(self.interval)
+            except socket.timeout as e:
+                continue
             except Exception as e:
                 dbg_error(e)
 
@@ -131,7 +139,6 @@ class Server:
         # close connectiong
         dbg_info('End of Service ')
         self.socket.close()
-        self.quit()
 
 if __name__ == "__main__":
     DebugSetting.setDbgLevel('Debug')

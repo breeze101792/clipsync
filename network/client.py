@@ -74,7 +74,6 @@ class Client:
         # close connectiong
         dbg_info('End of Service ')
         self.socket.close()
-        self.quit()
 
 if __name__ == "__main__":
 

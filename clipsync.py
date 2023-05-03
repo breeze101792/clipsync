@@ -7,8 +7,6 @@ from optparse import OptionParser
 # import subprocess as sp
 # import time
 
-from utility.cli import CommandLineInterface as cli
-from utility.debug import *
 from core.core import *
 from utility.debug import *
 
@@ -19,7 +17,7 @@ def main():
     parser.add_option("-t", "--test", dest="test",
                     help="testing function", action="store_true")
     parser.add_option("-d", "--debug", dest="debug",
-                    help="debug mode on!!", action="store_true")
+                    help="debug mode on!!", action="store_true", default=True)
     # parser.add_option("-l", "--list", dest="list",
     #                 help="List words on wordbank", action="store_true")
     # parser.add_option("-L", "--word-level", dest="word_level",
@@ -34,6 +32,7 @@ def main():
         dbg_info('Enable debug Mode')
     else:
         DebugSetting.setDbgLevel('Error')
+        DebugSetting.setDbgLevel('information')
         # DebugSetting.setDbgLevel('Disable')
 
     # open file

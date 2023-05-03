@@ -49,12 +49,16 @@ class Server:
     def __init__(self):
         self.flag_run = False
         self.interval = 0.1
-        self.host = "127.0.0.1"  # The server's hostname or IP address
-        self.port = 65431  # The port used by the server
+        self.server_ip = '127.0.0.1'
+        self.server_port = 65432
 
         self.socket = None
         self.service_threading = None
         self.client_service = []
+
+    def setServerInfo(self, server_ip = '127.0.0.1', server_port=65432):
+        self.server_ip = server_ip
+        self.server_port = server_port
     def _wait_connection(self):
         wait_cnt = 100
         while wait_cnt > 0:
@@ -101,8 +105,9 @@ class Server:
         # self.socket.settimeout(self.timeout)
         # with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as skt:
 
-        self.socket.bind((self.host, self.port))
+        self.socket.bind((self.server_ip, self.server_port))
         self.socket.listen()
+        dbg_info('Start Service ')
 
         while self.flag_run:
             try:
@@ -131,4 +136,7 @@ class Server:
 if __name__ == "__main__":
     DebugSetting.setDbgLevel('Debug')
     srv = Server()
+    # srv.setServerInfo(server_ip='127.0.0.1', server_port='65432')
+    # srv.setServerInfo(server_ip='127.0.0.1')
+    srv.setServerInfo(server_ip='10.1.1.17')
     srv.start()

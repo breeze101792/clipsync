@@ -1,4 +1,5 @@
 from cliphal.clipbase import *
+from utility.debug import *
 
 class Terminal(ClipBase):
     def __init__(self):

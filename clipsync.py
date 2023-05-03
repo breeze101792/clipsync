@@ -8,6 +8,7 @@ from optparse import OptionParser
 # import time
 
 from core.core import *
+from network.server import *
 from utility.debug import *
 
 
@@ -18,6 +19,12 @@ def main():
                     help="testing function", action="store_true")
     parser.add_option("-d", "--debug", dest="debug",
                     help="debug mode on!!", action="store_true", default=True)
+    parser.add_option("-i", "--server-ip", dest="server_ip", default='127.0.0.1',
+                    help="Specify server ip address", action="store")
+    parser.add_option("-p", "--server-port", dest="server_port", default=65432,
+                    help="Specify server port", action="store")
+    parser.add_option("-s", "--start-server", dest="server", default=False,
+                    help="Start server", action="store_true")
     # parser.add_option("-l", "--list", dest="list",
     #                 help="List words on wordbank", action="store_true")
     # parser.add_option("-L", "--word-level", dest="word_level",
@@ -35,22 +42,27 @@ def main():
         DebugSetting.setDbgLevel('information')
         # DebugSetting.setDbgLevel('Disable')
 
-    # open file
-    core = Core()
-    try:
-        dbg_info("debug Terminal")
-        core.start()
+    if options.server is True:
+        srv = Server()
+        srv.start()
+        srv.setServerInfo(server_ip=options.server_ip, server_port=options.server_port)
+    else:
+        core = Core()
+        core.setServerInfo(server_ip=options.server_ip, server_port=options.server_port)
+        try:
+            dbg_info("clipsync")
+            core.start()
 
-    except (KeyboardInterrupt):
-        dbg_info("DTerm: exit")
-    except Exception as e:
-        dbg_error(e)
+        except (KeyboardInterrupt):
+            dbg_info("clipsync: exit")
+        except Exception as e:
+            dbg_error(e)
 
-        traceback_output = traceback.format_exc()
-        dbg_error(traceback_output)
-    finally:
-        core.quit()
-        sys.exit()
+            traceback_output = traceback.format_exc()
+            dbg_error(traceback_output)
+        finally:
+            core.quit()
+            sys.exit()
 
 
 if __name__ == '__main__':

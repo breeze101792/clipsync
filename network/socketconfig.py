@@ -1,7 +1,7 @@
 import socket
 class SocketConfig:
     def __init__(self):
-        self.server_ip = '127.0.0.1'
+        self.server_ip = '0.0.0.0'
         self.server_port = 11320
         self.interval = 0.1
         self.timeout = 0.1

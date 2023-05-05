@@ -42,14 +42,14 @@ class ClientService(SocketConfig):
         while self.flag_run:
             try:
                 data = self.connection.recv(self.recv_buffer)
-                if len(prev_socket_buffer) != 0:
-                    data = prev_socket_buffer + data
-                    prev_socket_buffer = ''
                 if len(data) != 0:
-                    dbg_debug('[{}]: "{}"'.format(self.address, data))
+                    if len(prev_socket_buffer) != 0:
+                        data = prev_socket_buffer + data
+                        prev_socket_buffer = ''
+
+                    dbg_debug('[{}]:"{}"'.format(self.address, data))
 
                     pkg = Package()
-
                     missing_len = pkg.fromBytes(data)
                     recv_cnt = 5
                     while missing_len != 0 and recv_cnt > 0:
@@ -60,12 +60,17 @@ class ClientService(SocketConfig):
                             data = data+missing_byte
                             pkg.fromBytes(data)
                         elif missing_len < 0:
+                            dbg_debug('Byte over-read: ', missing_len, ', ', data[-64:])
                             pkg.fromBytes(data[:missing_len])
                             prev_socket_buffer = data[-1*missing_len:]
                             break;
+
                     self.broadcast(pkg)
                 else:
                     time.sleep(self.interval)
+                # dbg_print(data ,' <-> ', prev_socket_buffer)
+                if data == prev_socket_buffer:
+                    prev_socket_buffer = ''
             except socket.timeout as e:
                 continue
             except (BrokenPipeError, ConnectionResetError) as e:
@@ -121,7 +126,7 @@ class Server(SocketConfig):
 
     def broadcast(self, package):
         self._wait_connection()
-        dbg_debug('broadcast:', package, len(self.client_service))
+        dbg_info('broadcast:', package, len(self.client_service))
         for each_client in self.client_service:
 
             try:

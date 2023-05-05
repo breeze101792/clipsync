@@ -64,10 +64,11 @@ class Client(SocketConfig):
         while self.flag_run:
             try:
                 data = self.socket.recv(self.recv_buffer)
-                if len(prev_socket_buffer) != 0:
-                    data = prev_socket_buffer + data
-                    prev_socket_buffer = ''
                 if len(data) != 0:
+                    if len(prev_socket_buffer) != 0:
+                        data = prev_socket_buffer + data
+                        prev_socket_buffer = ''
+
                     pkg = Package()
                     missing_len = pkg.fromBytes(data)
                     recv_cnt = 5
@@ -76,8 +77,10 @@ class Client(SocketConfig):
                         if missing_len > 0:
                             dbg_warning('Byte missing: ', missing_len, ', ', data[-64:])
                             missing_byte = self.socket.recv(missing_len)
+                            data = data+missing_byte
                             pkg.fromBytes(data)
                         elif missing_len < 0:
+                            dbg_debug('Byte over-read: ', missing_len, ', ', data[-64:])
                             pkg.fromBytes(data[:missing_len])
                             prev_socket_buffer = data[-1*missing_len:]
                             break;

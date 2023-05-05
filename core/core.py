@@ -53,7 +53,7 @@ class Core:
                 if len(clip_buffer) > 0 and clip_buffer != self.previous_clips:
                     self.previous_clips = clip_buffer
                     # dbg_print("Value changed: %s" % str(self.previous_clips)[:20])
-                    dbg_info("clipboard changed, brodcast buffer: {}\n".format(clip_buffer))
+                    dbg_info("clipboard changed, notify server. buffer: {}\n".format(clip_buffer))
                     srv_client.send(clip_buffer)
                 time.sleep(0.1)
 

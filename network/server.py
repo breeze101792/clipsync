@@ -41,7 +41,7 @@ class ClientService(SocketConfig):
         prev_socket_buffer = ''
         while self.flag_run:
             try:
-                data = self.connection.recv(self.recv_buffer)
+                data = self.connection.recv(Package.HEADER_SIZE)
                 if len(data) != 0:
                     if len(prev_socket_buffer) != 0:
                         data = prev_socket_buffer + data
@@ -59,11 +59,12 @@ class ClientService(SocketConfig):
                             missing_byte = self.connection.recv(missing_len)
                             data = data+missing_byte
                             pkg.fromBytes(data)
-                        elif missing_len < 0:
-                            dbg_debug('Byte over-read: ', missing_len, ', ', data[-64:])
-                            pkg.fromBytes(data[:missing_len])
-                            prev_socket_buffer = data[-1*missing_len:]
-                            break;
+                        # TODO Fix collision issue
+                        # elif missing_len < 0:
+                        #     dbg_debug('Byte over-read: ', missing_len, ', ', data[-64:])
+                        #     pkg.fromBytes(data[:missing_len])
+                        #     prev_socket_buffer = data[-1*missing_len:]
+                        #     break;
 
                     self.broadcast(pkg)
                 else:
@@ -126,7 +127,7 @@ class Server(SocketConfig):
 
     def broadcast(self, package):
         self._wait_connection()
-        dbg_info('broadcast:', package, len(self.client_service))
+        dbg_info('broadcast:',len(self.client_service), ', ',package, )
         for each_client in self.client_service:
 
             try:

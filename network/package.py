@@ -10,6 +10,7 @@ len
 content
 """
 class Package:
+    HEADER_SIZE = 64
     def __init__(self):
         self.data_dict = {
             'type':'',
@@ -18,7 +19,7 @@ class Package:
             'length':'',
             'content':''
         }
-        self._header_size = 64
+        # self.HEADER_SIZE = 64
 
     @staticmethod
     def fromBytes_json(byte_data):
@@ -43,15 +44,15 @@ class Package:
 
     def fromBytes(self, byte_data):
         # dbg_debug('All Data: ', len(byte_data), byte_data)
-        # dbg_debug('Header:   ', len(byte_data[:self._header_size]), byte_data[:self._header_size])
-        # dbg_debug('Content:  ', len(byte_data[self._header_size:]), byte_data[self._header_size:])
+        # dbg_debug('Header:   ', len(byte_data[:self.HEADER_SIZE]), byte_data[:self.HEADER_SIZE])
+        # dbg_debug('Content:  ', len(byte_data[self.HEADER_SIZE:]), byte_data[self.HEADER_SIZE:])
         current_len = 0
         try:
-            if len(byte_data) < self._header_size:
-                dbg_debug('bytedata shorter than header size:  ', len(byte_data), ', ',self._header_size)
-                return self._header_size - len(byte_data)
-            header_buffer = byte_data[:self._header_size].decode('ascii')
-            content_buffer = byte_data[self._header_size:].decode('utf8')
+            if len(byte_data) < self.HEADER_SIZE:
+                dbg_debug('bytedata shorter than header size:  ', len(byte_data), ', ',self.HEADER_SIZE)
+                return self.HEADER_SIZE - len(byte_data)
+            header_buffer = byte_data[:self.HEADER_SIZE].decode('ascii')
+            content_buffer = byte_data[self.HEADER_SIZE:].decode('utf8')
 
             # tmp_pkg = Package()
             self.data_dict['type']    = header_buffer[current_len:current_len+2].strip()
@@ -69,8 +70,8 @@ class Package:
         except Exception as e:
             dbg_error(e)
             dbg_error('All Data: ', len(byte_data), byte_data)
-            dbg_error('Header:   ', len(byte_data[:self._header_size]), byte_data[:self._header_size])
-            dbg_error('Content:  ', len(byte_data[self._header_size:]), byte_data[self._header_size:])
+            dbg_error('Header:   ', len(byte_data[:self.HEADER_SIZE]), byte_data[:self.HEADER_SIZE])
+            dbg_error('Content:  ', len(byte_data[self.HEADER_SIZE:]), byte_data[self.HEADER_SIZE:])
 
             traceback_output = traceback.format_exc()
             dbg_error(traceback_output)
@@ -86,14 +87,14 @@ class Package:
         header_buffer += self.type.rjust(2)
         header_buffer += self.srcip.rjust(15)
         header_buffer += self.destip.rjust(15)
-        header_buffer += (len(content_byte_buffer) + self._header_size).__str__().rjust(8)
+        header_buffer += (len(content_byte_buffer) + self.HEADER_SIZE).__str__().rjust(8)
 
         # reserver
-        # header_buffer += ''.zfill(self._header_size - len(header_buffer))
-        header_buffer += 'RESERVE'.rjust(self._header_size - len(header_buffer))
-        # dbg_print('toBytes:', len(header_buffer), ',',self._header_size - len(header_buffer))
-        if len(header_buffer) != self._header_size:
-            dbg_error('Not fitting header size:', len(header_buffer), ',',self._header_size - len(header_buffer))
+        # header_buffer += ''.zfill(self.HEADER_SIZE - len(header_buffer))
+        header_buffer += 'RESERVE'.rjust(self.HEADER_SIZE - len(header_buffer))
+        # dbg_print('toBytes:', len(header_buffer), ',',self.HEADER_SIZE - len(header_buffer))
+        if len(header_buffer) != self.HEADER_SIZE:
+            dbg_error('Not fitting header size:', len(header_buffer), ',',self.HEADER_SIZE - len(header_buffer))
             return None
 
         byte_buffer = header_buffer.encode('ascii') + content_byte_buffer

@@ -63,7 +63,7 @@ class Client(SocketConfig):
         prev_socket_buffer = ''
         while self.flag_run:
             try:
-                data = self.socket.recv(self.recv_buffer)
+                data = self.socket.recv(Package.HEADER_SIZE)
                 if len(data) != 0:
                     if len(prev_socket_buffer) != 0:
                         data = prev_socket_buffer + data
@@ -79,15 +79,17 @@ class Client(SocketConfig):
                             missing_byte = self.socket.recv(missing_len)
                             data = data+missing_byte
                             pkg.fromBytes(data)
-                        elif missing_len < 0:
-                            dbg_debug('Byte over-read: ', missing_len, ', ', data[-64:])
-                            pkg.fromBytes(data[:missing_len])
-                            prev_socket_buffer = data[-1*missing_len:]
-                            break;
+                        # TODO Fix collision issue
+                        # elif missing_len < 0:
+                        #     dbg_debug('Byte over-read: ', missing_len, ', ', data[-64:])
+                        #     pkg.fromBytes(data[:missing_len])
+                        #     prev_socket_buffer = data[-1*missing_len:]
+                        #     break;
                         # dealy 10ms
                         time.sleep(0.01)
                         recv_cnt -= 1
 
+                    dbg_info('Recieve pkg: ', pkg)
                     self._package_handler(pkg.content)
 
             except Exception as e:

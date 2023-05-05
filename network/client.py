@@ -75,7 +75,7 @@ class Client(SocketConfig):
                         missing_len = pkg.fromBytes(data)
                         if missing_len > 0:
                             dbg_warning('Byte missing: ', missing_len, ', ', data[-64:])
-                            missing_byte = self.connection.recv(missing_len)
+                            missing_byte = self.socket.recv(missing_len)
                             pkg.fromBytes(data)
                         elif missing_len < 0:
                             pkg.fromBytes(data[:missing_len])

@@ -20,10 +20,10 @@ def main():
     parser.add_option("-t", "--test", dest="test",
                     help="testing function", action="store_true")
     parser.add_option("-d", "--debug", dest="debug",
-                    help="debug mode on!!", action="store_true", default=True)
-    parser.add_option("-i", "--server-ip", dest="server_ip", default='127.0.0.1',
+                    help="debug mode on!!", action="store_true", default=False)
+    parser.add_option("-i", "--server-ip", dest="server_ip", default=None,
                     help="Specify server ip address", action="store")
-    parser.add_option("-p", "--server-port", dest="server_port", default=65432,
+    parser.add_option("-p", "--server-port", dest="server_port", default=None, type='int',
                     help="Specify server port", action="store")
     parser.add_option("-s", "--start-server", dest="server", default=False,
                     help="Start server", action="store_true")
@@ -38,13 +38,15 @@ def main():
     if options.debug is True:
         # DebugSetting.debug_level = DebugLevel.MAX
         DebugSetting.setDbgLevel('Debug')
-        dbg_info('Enable debug Mode')
+        dbg_debug('Enable debug Mode')
     else:
         DebugSetting.setDbgLevel('Error')
         DebugSetting.setDbgLevel('information')
         # DebugSetting.setDbgLevel('Disable')
 
+    dbg_debug('Server Info:{}:{}'.format(options.server_ip, options.server_port))
     if options.server is True:
+        dbg_info("Starting clipsync server")
         try:
             srv = Server()
             srv.setServerInfo(server_ip=options.server_ip, server_port=options.server_port)
@@ -61,10 +63,10 @@ def main():
             srv.quit()
             sys.exit()
     else:
+        dbg_info("Starting clipsync")
         core = Core()
         core.setServerInfo(server_ip=options.server_ip, server_port=options.server_port)
         try:
-            dbg_info("clipsync")
             core.start()
 
         except (KeyboardInterrupt):

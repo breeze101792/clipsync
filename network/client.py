@@ -3,22 +3,24 @@ import time
 import socket
 import traceback
 from network.package import *
+from network.socketconfig import *
 from utility.debug import *
 
-class Client:
+class Client(SocketConfig):
     def __init__(self):
+        super().__init__()
+        # self.interval = 0.1
+        # # hard code for testing
+        # self.server_ip = '127.0.0.1'
+        # self.server_port = 65432
         self.flag_run = False
-        self.interval = 0.1
-        # hard code for testing
-        self.server_ip = '127.0.0.1'
-        self.server_port = 65432
 
         self.socket = None
         self.service_threading = None
         self._package_handler = self._def_pkg_hadler
-    def setServerInfo(self, server_ip = '127.0.0.1', server_port=65432):
-        self.server_ip = server_ip
-        self.server_port = server_port
+    # def setServerInfo(self, server_ip = '127.0.0.1', server_port=65432):
+    #     self.server_ip = server_ip
+    #     self.server_port = server_port
     def _def_pkg_hadler(self, content):
         dbg_print('Content:', content.__str__())
 
@@ -33,18 +35,18 @@ class Client:
             time.sleep(self.interval)
         return False
 
-    def quit(self):
-        self.flag_run = False
-        self.service_threading.join()
     def send(self, content):
         self._wait_connection()
-        tmp_pkg = Package()
-        # tmp_pkg.type    = ''
-        # tmp_pkg.srcip   = ''
-        # tmp_pkg.destip  = ''
-        # tmp_pkg.length  = ''
-        tmp_pkg.content = content
-        self.socket.sendall(tmp_pkg.toBytes())
+        try:
+            tmp_pkg = Package()
+            tmp_pkg.content = content
+            self.socket.sendall(tmp_pkg.toBytes())
+        except Exception as e:
+            print(e)
+            traceback_output = traceback.format_exc()
+            print(traceback_output)
+        # finally:
+        #     pass
     def start(self):
         self.service_threading = threading.Thread(target=self._service)
         self.service_threading.daemon=True
@@ -53,14 +55,36 @@ class Client:
     def _service(self):
         self.flag_run = True
 
+        dbg_info('Connect to remote Service on {}:{}'.format(self.server_ip, self.server_port))
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.connect((self.server_ip, self.server_port))
+        self.modifyBufferSize(self.socket)
         # self.socket.sendall(b"Hello, world")
+        prev_socket_buffer = ''
         while self.flag_run:
             try:
-                data = self.socket.recv(4096)
+                data = self.socket.recv(self.recv_buffer)
+                if len(prev_socket_buffer) != 0:
+                    data = prev_socket_buffer + data
+                    prev_socket_buffer = ''
                 if len(data) != 0:
-                    pkg = Package.fromBytes(data)
+                    pkg = Package()
+                    missing_len = pkg.fromBytes(data)
+                    recv_cnt = 5
+                    while missing_len != 0 and recv_cnt > 0:
+                        missing_len = pkg.fromBytes(data)
+                        if missing_len > 0:
+                            dbg_warning('Byte missing: ', missing_len, ', ', data[-64:])
+                            missing_byte = self.connection.recv(missing_len)
+                            pkg.fromBytes(data)
+                        elif missing_len < 0:
+                            pkg.fromBytes(data[:missing_len])
+                            prev_socket_buffer = data[-1*missing_len:]
+                            break;
+                        # dealy 10ms
+                        time.sleep(0.01)
+                        recv_cnt -= 1
+
                     self._package_handler(pkg.content)
 
             except Exception as e:
@@ -74,6 +98,13 @@ class Client:
         # close connectiong
         dbg_info('End of Service ')
         self.socket.close()
+        self.socket = None
+    def quit(self):
+        self.flag_run = False
+        if self.socket is not None:
+            self.socket.close()
+
+        self.service_threading.join()
 
 if __name__ == "__main__":
 

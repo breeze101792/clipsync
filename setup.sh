@@ -87,14 +87,14 @@ function fInstaller()
     fPrintHeader ${FUNCNAME[0]}
     local var_rel_path='dist'
     # local var_version=$(cat setting/settingmanager.py | grep Version | cut -d '=' -f 2 | sed "s/'//g")"."$(date +%H%M%S)
-    local var_version='0.1'
+    local var_version="0.1.1.$(date +%H%M%S)"
     # local var_options=("-m PyInstaller --onefile  --icon=resource/icon.ico")
     local var_options=("-m PyInstaller --onefile ")
     rm -rf ${var_rel_path}
-    if [ "${VAR_BUILD_TYPE}" = 'release' ]
-    then
-        var_options+=("--noconsole ")
-    fi
+    # if [ "${VAR_BUILD_TYPE}" = 'release' ]
+    # then
+    #     var_options+=("--noconsole ")
+    # fi
     if [ "${VAR_OS}" = 'win' ]
     then
         python.exe ${var_options[@]} clipsync.py
@@ -121,9 +121,9 @@ function fSetup()
 
     if [ "${VAR_OS}" = 'win' ]
     then
-        pip.exe install pyserial clipboard pyinstaller 
+        pip.exe install clipboard pyinstaller 
     else
-        pip install pyserial clipboard pyinstaller 
+        pip install clipboard pyinstaller 
     fi
 }
 

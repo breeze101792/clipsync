@@ -3,19 +3,19 @@ from cliphal.clipbase import *
 from cliphal.terminal import *
 from cliphal.macclip import *
 from cliphal.pyclip import *
+from cliphal.testclip import *
 from utility.debug import *
 
 class ClipManager:
     def __init__(self):
-        # self._clip_hal = Base()
 
-        # if sys.platform == 'darwin' and False:
-        # if sys.platform == 'darwin':
         if MacClip.isSupported():
             self._clip_hal = MacClip()
 
         elif PyClip.isSupported():
             self._clip_hal = PyClip()
+        # elif TestClip.isSupported():
+        #     self._clip_hal = TestClip()
         elif Terminal.isSupported():
             self._clip_hal = Terminal()
         else:

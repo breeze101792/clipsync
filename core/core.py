@@ -34,9 +34,9 @@ class Core:
         if content is not None and len(content) > 0:
             self.previous_clips = content
             self.clip_ins.setBuffer(content)
-            dbg_info('Set clipboard: ', content,',' ,len(content))
+            dbg_info('Set clipboard {}: "{}"'.format(len(content) ,content))
         else:
-            dbg_debug('network_callback', content,',' ,len(content))
+            dbg_debug('buffer invalid: {}: "{}"'.format(len(content) ,content))
 
     def _service(self):
         srv_client = Client()

@@ -71,11 +71,14 @@ class Client(SocketConfig):
 
                     pkg = Package()
                     missing_len = pkg.fromBytes(data)
+                    if missing_len == 0:
+                        dbg_warning('Read first header size fail, clean socket buffer size')
+                        self.socket.recv(self.buffer_size)
                     recv_cnt = 5
                     while missing_len != 0 and recv_cnt > 0:
                         missing_len = pkg.fromBytes(data)
                         if missing_len > 0:
-                            dbg_warning('Byte missing: ', missing_len, ', ', data[-64:])
+                            dbg_debug('Byte missing: ', missing_len, ', ', data[-64:])
                             missing_byte = self.socket.recv(missing_len)
                             data = data+missing_byte
                             pkg.fromBytes(data)

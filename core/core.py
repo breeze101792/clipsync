@@ -29,19 +29,20 @@ class Core:
         # self.service_threading.start()
         self._service()
 
-    def network_callback(self, content):
+    def network_callback(self, package):
         # dbg_print(content.__str__())
-        if content is not None and len(content) > 0:
-            self.previous_clips = content
-            self.clip_ins.setBuffer(content)
-            dbg_info('Set clipboard {}: "{}"'.format(len(content) ,content))
+        if package.content is not None and len(package.content) > 0:
+            self.previous_clips = package.content
+            self.clip_ins.setBuffer(package.content)
+            dbg_info('Set clipboard {}: "{}"'.format(len(package.content) ,package.content))
         else:
-            dbg_debug('buffer invalid: {}: "{}"'.format(len(content) ,content))
+            dbg_debug('buffer invalid: {}: "{}"'.format(len(package.content) ,package.content))
 
     def _service(self):
         srv_client = Client()
         srv_client.setServerInfo(server_ip=self.server_ip, server_port=self.server_port)
         srv_client.regPackageHandler(self.network_callback)
+        srv_client.createConnection()
         srv_client.start()
         self.flag_run = True
 

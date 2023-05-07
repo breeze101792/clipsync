@@ -3,108 +3,84 @@ import time
 import socket
 import traceback
 from network.package import *
-from network.socketconfig import *
+from network.socketbase import *
 from utility.debug import *
 
-class ClientService(SocketConfig):
+class ClientService(SocketBase):
     def __init__(self, connection, address, broadcast):
         super().__init__()
-        self.connection = connection
+        self.setConnection(connection)
         self.address = address
-        self.broadcast = broadcast
-        self.flag_run = False
+        self.regPackageHandler(broadcast)
 
-        self.connection.settimeout(self.timeout)
     def start(self):
-        self._service()
-    def quit(self):
-        self.flag_run = False
-        # if self.connection is not None:
-        #     self.connection.close()
-        # Test server close
-        try:
-            self.connection.shutdown(socket.SHUT_RDWR)
-        except:
-            pass
-        try:
-            self.connection.close()
-        except:
-            pass
-        # self.service_thread.join()
+        self.startService()
     def send(self, package):
-        if package is not None:
-            dbg_debug('[{}]: send "{}"'.format(self.address, package))
-            self.connection.sendall(package.toBytes())
-    def _service(self):
-        self.flag_run = True
+        self.sendPackage(package)
 
-        prev_socket_buffer = ''
-        while self.flag_run:
-            try:
-                data = self.connection.recv(Package.HEADER_SIZE)
-                if len(data) != 0:
-                    if len(prev_socket_buffer) != 0:
-                        data = prev_socket_buffer + data
-                        prev_socket_buffer = ''
+# class ClientService(SocketConnection):
+#     def __init__(self, connection, address, broadcast):
+#         super().__init__()
+#         self.connection = connection
+#         self.address = address
+#         self.broadcast = broadcast
+#         self.flag_run = False
 
-                    dbg_debug('[{}]:"{}"'.format(self.address, data))
+#         self.connection.settimeout(self.timeout)
+#     def start(self):
+#         self._service()
+#     def send(self, package):
+#         if package is not None:
+#             dbg_debug('[{}]: send "{}"'.format(self.address, package))
+#             self.connection.sendall(package.toBytes())
+#     def _service(self):
+#         self.flag_run = True
 
-                    pkg = Package()
-                    missing_len = pkg.fromBytes(data)
-                    if missing_len == 0:
-                        dbg_warning('Read first header size fail, clean socket buffer size')
-                        self.socket.recv(self.buffer_size)
-                    recv_cnt = 5
-                    while missing_len != 0 and recv_cnt > 0:
-                        missing_len = pkg.fromBytes(data)
-                        if missing_len > 0:
-                            dbg_debug('Byte missing: ', missing_len, ', ', data[-64:])
-                            missing_byte = self.connection.recv(missing_len)
-                            data = data+missing_byte
-                            pkg.fromBytes(data)
-                        # TODO Fix collision issue
-                        # elif missing_len < 0:
-                        #     dbg_debug('Byte over-read: ', missing_len, ', ', data[-64:])
-                        #     pkg.fromBytes(data[:missing_len])
-                        #     prev_socket_buffer = data[-1*missing_len:]
-                        #     break;
+#         prev_socket_buffer = ''
+#         while self.flag_run:
+#             try:
+#                 pkg = self.recievePackage(self.connection)
+#                 if pkg is not None:
+#                     self.broadcast(pkg)
+#                 else:
+#                     time.sleep(self.interval)
+#             except socket.timeout as e:
+#                 continue
+#             except (BrokenPipeError, ConnectionResetError) as e:
+#                 dbg_info('[{}] connection lost'.format(self.address), e)
+#             except Exception as e:
+#                 dbg_error('[{}]'.format(self.address), e)
 
-                    self.broadcast(pkg)
-                else:
-                    time.sleep(self.interval)
-                # dbg_print(data ,' <-> ', prev_socket_buffer)
-                if data == prev_socket_buffer:
-                    prev_socket_buffer = ''
-            except socket.timeout as e:
-                continue
-            except (BrokenPipeError, ConnectionResetError) as e:
-                dbg_info('[{}] connection lost'.format(self.address), e)
-            except Exception as e:
-                dbg_error('[{}]'.format(self.address), e)
+#                 traceback_output = traceback.format_exc()
+#                 dbg_error('[{}]'.format(self.address), traceback_output)
+#                 time.sleep(self.interval)
 
-                traceback_output = traceback.format_exc()
-                dbg_error('[{}]'.format(self.address), traceback_output)
-                time.sleep(self.interval)
-
-        dbg_info('[{}]: Connection End.'.format(self.address))
-        self.connection.close()
+#         dbg_info('[{}]: Connection End.'.format(self.address))
+#         self.connection.close()
+#     def quit(self):
+#         self.flag_run = False
+#         # if self.connection is not None:
+#         #     self.connection.close()
+#         # Test server close
+#         try:
+#             self.connection.shutdown(socket.SHUT_RDWR)
+#         except:
+#             pass
+#         try:
+#             self.connection.close()
+#         except:
+#             pass
+#         # self.service_thread.join()
 
 class Server(SocketConfig):
     def __init__(self):
         super().__init__()
-        # self.interval = 0.1
-        # self.timeout = 0.1
-        # self.server_ip = '127.0.0.1'
-        # self.server_port = 65432
 
         self.flag_run = False
         self.socket = None
-        # self.service_threading = None
+        self.service_threading = None
         self.client_service = []
 
-    # def setServerInfo(self, server_ip = '127.0.0.1', server_port=65432):
-    #     self.server_ip = server_ip
-    #     self.server_port = server_port
     def _wait_connection(self):
         wait_cnt = 100
         while wait_cnt > 0:
@@ -123,9 +99,6 @@ class Server(SocketConfig):
         self.flag_run = False
         # self.service_threading.join()
     def start(self):
-        # self.service_threading = threading.Thread(target=self._service)
-        # self.service_threading.daemon=True
-        # self.service_threading.start()
         self._service()
 
     def broadcast(self, package):

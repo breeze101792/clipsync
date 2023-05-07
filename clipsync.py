@@ -40,8 +40,8 @@ def main():
         DebugSetting.setDbgLevel('Debug')
         dbg_debug('Enable debug Mode')
     else:
-        DebugSetting.setDbgLevel('Error')
-        DebugSetting.setDbgLevel('information')
+        DebugSetting.setDbgLevel('Information')
+        # DebugSetting.setDbgLevel('Error')
         # DebugSetting.setDbgLevel('Disable')
 
     dbg_debug('Server Info:{}:{}'.format(options.server_ip, options.server_port))

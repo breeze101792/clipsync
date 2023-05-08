@@ -86,7 +86,7 @@ function fInstaller()
 {
     fPrintHeader ${FUNCNAME[0]}
     local var_rel_path='dist'
-    # local var_version=$(cat setting/settingmanager.py | grep Version | cut -d '=' -f 2 | sed "s/'//g")"."$(date +%H%M%S)
+    local var_version=$(cat setting/settingmanager.py | grep Version | cut -d '=' -f 2 | sed "s/'//g")"."$(date +%H%M%S)
     local var_version="0.1.1.$(date +%H%M%S)"
     # local var_options=("-m PyInstaller --onefile  --icon=resource/icon.ico")
     local var_options=("-m PyInstaller --onefile ")
@@ -121,9 +121,9 @@ function fSetup()
 
     if [ "${VAR_OS}" = 'win' ]
     then
-        pip.exe install clipboard pyinstaller 
+        pip.exe install clipboard pyinstaller cryptography
     else
-        pip install clipboard pyinstaller 
+        pip install clipboard pyinstaller cryptography
     fi
 }
 

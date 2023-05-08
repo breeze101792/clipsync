@@ -37,12 +37,12 @@ class Core:
     def network_callback(self, package):
         # dbg_print(content.__str__())
         if package.content is not None and len(package.content) > 0:
-            self.previous_clips = package.content
             decrypted_content = self.crypto.decrypt(package.content).decode(encoding="utf8")
+            self.previous_clips = decrypted_content
             self.clip_ins.setBuffer(decrypted_content)
             dbg_info('Set clipboard {}: "{}"'.format(len(decrypted_content) ,decrypted_content))
         else:
-            dbg_debug('buffer invalid: {}: "{}"'.format(len(package.content) ,package.content))
+            dbg_debug('buffer invalid: {}: "{}"'.format(len(decrypted_content) ,decrypted_content))
 
     def _service(self):
         srv_client = Client()

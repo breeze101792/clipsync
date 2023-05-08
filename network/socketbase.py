@@ -58,7 +58,6 @@ class SocketBase(SocketConfig):
             wait_cnt -= 1
             time.sleep(self.interval)
         return False
-
     def setConnection(self, connection):
         self.socket = connection
     def createConnection(self):

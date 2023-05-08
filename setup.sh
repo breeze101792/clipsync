@@ -86,33 +86,31 @@ function fInstaller()
 {
     fPrintHeader ${FUNCNAME[0]}
     local var_rel_path='dist'
-    # local var_version=$(cat setting/settingmanager.py | grep Version | cut -d '=' -f 2 | sed "s/'//g")"."$(date +%H%M%S)
-    local var_version="0.1.1.$(date +%H%M%S)"
-    # local var_options=("-m PyInstaller --onefile  --icon=resource/icon.ico")
-    local var_options=("-m PyInstaller --onefile ")
+    local var_version=$(cat setting/settingmanager.py | grep Version | cut -d '=' -f 2 | sed "s/'//g")"."$(date +%H%M%S)
+    local var_options=("-m PyInstaller --onefile  --icon=resource/icon.ico")
     rm -rf ${var_rel_path}
-    # if [ "${VAR_BUILD_TYPE}" = 'release' ]
-    # then
-    #     var_options+=("--noconsole ")
-    # fi
+    if [ "${VAR_BUILD_TYPE}" = 'release' ]
+    then
+        var_options+=("--noconsole ")
+    fi
     if [ "${VAR_OS}" = 'win' ]
     then
-        python.exe ${var_options[@]} clipsync.py
+        python.exe ${var_options[@]} dterm.py
     else
-        python ${var_options[@]} clipsync.py
+        python ${var_options[@]} dterm.py
     fi
     # copy needed files
-    # mkdir -p ${var_rel_path}/plugin
-    # mkdir -p ${var_rel_path}/scripts
-    # cp -rf resource ${var_rel_path}/
-    # cp -rf plugin/pluginclient.py ${var_rel_path}/plugin/
-    # cp -rf scripts/* ${var_rel_path}/scripts/
-    mv ${var_rel_path}/clipsync.exe ${var_rel_path}/clipsync_${var_version}_${VAR_BUILD_TYPE}.exe
-    mv ${var_rel_path} clipsync_${var_version}_${VAR_BUILD_TYPE}
+    mkdir -p ${var_rel_path}/plugin
+    mkdir -p ${var_rel_path}/scripts
+    cp -rf resource ${var_rel_path}/
+    cp -rf plugin/pluginclient.py ${var_rel_path}/plugin/
+    cp -rf scripts/* ${var_rel_path}/scripts/
+    mv ${var_rel_path}/dterm.exe ${var_rel_path}/dterm_${var_version}_${VAR_BUILD_TYPE}.exe
+    mv ${var_rel_path} dterm_${var_version}_${VAR_BUILD_TYPE}
 
     # compress file
-    tar cvjf clipsync_${var_version}_${VAR_BUILD_TYPE}.tbz2 clipsync_${var_version}_${VAR_BUILD_TYPE}
-    echo "release file: clipsync_${var_version}_${VAR_BUILD_TYPE}.tbz2"
+    tar cvjf dterm_${var_version}_${VAR_BUILD_TYPE}.tbz2 dterm_${var_version}_${VAR_BUILD_TYPE}
+    echo "release file: dterm_${var_version}_${VAR_BUILD_TYPE}.tbz2"
 }
 function fSetup()
 {
@@ -121,9 +119,9 @@ function fSetup()
 
     if [ "${VAR_OS}" = 'win' ]
     then
-        pip.exe install clipboard pyinstaller 
+        pip.exe install clipboard pyinstaller cryptography
     else
-        pip install clipboard pyinstaller 
+        pip install clipboard pyinstaller cryptography
     fi
 }
 
@@ -158,6 +156,9 @@ function fMain()
                     VAR_BUILD_TYPE='release'
                 fi
                 ;;
+            -f|--fake-serial)
+                flag_fakeserial=true
+                ;;
             -w|--window)
                 VAR_OS='win'
                 ;;
@@ -189,6 +190,17 @@ function fMain()
         fSetup
     fi
 
+    if [ ${flag_fakeserial} = true ]
+    then
+        echo 'Fake serial'
+        # socat PTY,link=$HOME/ttyVirt,rawer,wait-slave EXEC:"ssh pi@192.168.5.30 socat - /dev/ttyACM0,nonblock,rawer"
+        # socat PTY,link=$HOME/ttyVirt,rawer,wait-slave EXEC:"bash"
+        sudo socat PTY,link=$HOME/ttyVirt,rawer,wait-slave EXEC:"bash"
+
+        # can work
+        # socat -v PTY,link=$HOME/ttyVirt,raw,echo=0,icanon=1,b9600,crlf EXEC:'ssh pi@192.168.5.30 socat - /dev/ttyACM0,pty,raw,icanon=1,echo=0,crlf'
+
+    fi
     if [ ${flag_installer} = true ]
     then
         fInstaller

@@ -5,6 +5,7 @@ from utility.debug import *
 import threading
 from cliphal.clipmanager import *
 from network.client import *
+from network.crypto import *
 
 class Core:
     def __init__(self):
@@ -18,6 +19,10 @@ class Core:
         # self.service_threading = None
         self.server_ip = None
         self.server_port = None
+
+        # cryption
+        self.crypto = Crypto()
+        self.crypto.keyGen('clipsync')
 
     def setServerInfo(self, server_ip = None, server_port=None):
         self.server_ip = server_ip
@@ -33,8 +38,9 @@ class Core:
         # dbg_print(content.__str__())
         if package.content is not None and len(package.content) > 0:
             self.previous_clips = package.content
-            self.clip_ins.setBuffer(package.content)
-            dbg_info('Set clipboard {}: "{}"'.format(len(package.content) ,package.content))
+            decrypted_content = self.crypto.decrypt(package.content).decode(encoding="utf8")
+            self.clip_ins.setBuffer(decrypted_content)
+            dbg_info('Set clipboard {}: "{}"'.format(len(decrypted_content) ,decrypted_content))
         else:
             dbg_debug('buffer invalid: {}: "{}"'.format(len(package.content) ,package.content))
 
@@ -47,15 +53,21 @@ class Core:
         self.flag_run = True
 
         while self.flag_run:
-            time.sleep(0.1)
-
-            while True:
+            try:
                 clip_buffer = self.clip_ins.getBuffer()
                 if len(clip_buffer) > 0 and clip_buffer != self.previous_clips:
                     self.previous_clips = clip_buffer
                     # dbg_print("Value changed: %s" % str(self.previous_clips)[:20])
                     dbg_info("clipboard changed, notify server. buffer: {}\n".format(clip_buffer))
-                    srv_client.send(clip_buffer)
+                    # srv_client.send(clip_buffer)
+                    dbg_print(clip_buffer)
+                    srv_client.send(self.crypto.encrypt(clip_buffer.encode('utf8')))
+            except Exception as e:
+                dbg_error(e)
+
+                traceback_output = traceback.format_exc()
+                dbg_error(traceback_output)
+            finally:
                 time.sleep(0.1)
 
         self.flag_run = False

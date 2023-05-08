@@ -5,15 +5,11 @@ import sys
 import traceback
 from optparse import OptionParser
 import time
-# import os
-# import subprocess as sp
-# import time
 
 from core.core import *
 from network.server import *
 from utility.debug import *
-
-
+from core.configMgr import *
 
 def main():
     parser = OptionParser(usage='Usage: clipsync [options] ......')
@@ -35,51 +31,52 @@ def main():
     #                help="Setup Word Level", default=[], action="append")
 
     (options, args) = parser.parse_args()
+    # Config
+    ################################################################
+    cfg_mgr = ConfigManager()
+    cfg_mgr.initialize(Config)
+
     if options.debug is True:
         # DebugSetting.debug_level = DebugLevel.MAX
-        DebugSetting.setDbgLevel('Debug')
-        dbg_debug('Enable debug Mode')
+        Config.Debug.log_level = 'Debug'
+        # dbg_debug('Enable debug Mode')
     else:
-        DebugSetting.setDbgLevel('Information')
-        # DebugSetting.setDbgLevel('Error')
-        # DebugSetting.setDbgLevel('Disable')
+        Config.Debug.log_level = 'Information'
 
-    dbg_debug('Server Info:{}:{}'.format(options.server_ip, options.server_port))
-    if options.server is True:
-        dbg_info("Starting clipsync server")
-        try:
-            srv = Server()
-            srv.setServerInfo(server_ip=options.server_ip, server_port=options.server_port)
-            srv.start()
+    if options.server_ip is not None:
+        Config.Server.ip = options.server_ip
+    if options.server_port is not None:
+        Config.Server.port = options.server_port
 
-        except (KeyboardInterrupt):
-            dbg_info("clipsync: exit")
-        except Exception as e:
-            dbg_error(e)
+    # Presetting
+    ################################################################
+    DebugSetting.setDbgLevel(Config.Debug.log_level)
+    dbg_debug('Server Info:{}:{}'.format(Config.Server.ip, Config.Server.port))
 
-            traceback_output = traceback.format_exc()
-            dbg_error(traceback_output)
-        finally:
-            srv.quit()
-            sys.exit()
-    else:
-        dbg_info("Starting clipsync")
-        core = Core()
-        core.setServerInfo(server_ip=options.server_ip, server_port=options.server_port)
-        try:
-            core.start()
+    # Main code start
+    ################################################################
+    thread_ins = None
+    try:
+        if options.server is True:
+            dbg_info("Starting clipsync server")
+            thread_ins = Server()
+        else:
+            dbg_info("Starting clipsync")
+            thread_ins = Core()
 
-        except (KeyboardInterrupt):
-            dbg_info("clipsync: exit")
-        except Exception as e:
-            dbg_error(e)
+        thread_ins.setServerInfo(server_ip=Config.Server.ip, server_port=Config.Server.port)
+        thread_ins.start()
 
-            traceback_output = traceback.format_exc()
-            dbg_error(traceback_output)
-        finally:
-            core.quit()
-            sys.exit()
+    except (KeyboardInterrupt):
+        dbg_info("clipsync: exit")
+    except Exception as e:
+        dbg_error(e)
 
+        traceback_output = traceback.format_exc()
+        dbg_error(traceback_output)
+    finally:
+        thread_ins.quit()
+        sys.exit()
 
 if __name__ == '__main__':
     main()

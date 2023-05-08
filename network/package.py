@@ -52,7 +52,8 @@ class Package:
                 dbg_debug('bytedata shorter than header size:  ', len(byte_data), ', ',self.HEADER_SIZE)
                 return self.HEADER_SIZE - len(byte_data)
             header_buffer = byte_data[:self.HEADER_SIZE].decode('ascii')
-            content_buffer = byte_data[self.HEADER_SIZE:].decode('utf8')
+            # content_buffer = byte_data[self.HEADER_SIZE:].decode('utf8')
+            content_buffer = byte_data[self.HEADER_SIZE:]
 
             # tmp_pkg = Package()
             self.data_dict['type']    = header_buffer[current_len:current_len+2].strip()
@@ -81,7 +82,8 @@ class Package:
         return self.data_dict['length'] - len(byte_data)
 
     def toBytes(self):
-        content_byte_buffer = self.content.encode('utf8')
+        # content_byte_buffer = self.content.encode('utf8')
+        content_byte_buffer = self.content
 
         header_buffer = ""
         header_buffer += self.type.rjust(2)

@@ -103,7 +103,7 @@ class Server(SocketConfig):
 
     def broadcast(self, package):
         self._wait_connection()
-        dbg_info('broadcast:',len(self.client_service), ', ',package, )
+        # dbg_info('broadcast:',len(self.client_service), ', ',package, )
         for each_client in self.client_service:
 
             try:

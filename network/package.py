@@ -107,7 +107,8 @@ class Package:
 
 
     def __str__(self):
-        str_buf = "type:{}, src:{}, dest:{}, len:{}, content:{}".format(self.type, self.srcip, self.destip, self.length, self.content)
+        # str_buf = "type:{}, src:{}, dest:{}, len:{}, content:{}".format(self.type, self.srcip, self.destip, self.length, self.content)
+        str_buf = "type:{}, src:{}, dest:{}, len:{}".format(self.type, self.srcip, self.destip, self.length)
         return str_buf
 
 

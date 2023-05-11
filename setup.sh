@@ -86,8 +86,7 @@ function fInstaller()
 {
     fPrintHeader ${FUNCNAME[0]}
     local var_rel_path='dist'
-    local var_version=$(cat setting/settingmanager.py | grep Version | cut -d '=' -f 2 | sed "s/'//g")"."$(date +%H%M%S)
-    local var_version="0.1.1.$(date +%H%M%S)"
+    local var_version=$(cat core/configtools.py | grep version | cut -d '=' -f 2 | sed "s/'//g")"."$(date +%H%M%S)
     # local var_options=("-m PyInstaller --onefile  --icon=resource/icon.ico")
     local var_options=("-m PyInstaller --onefile ")
     rm -rf ${var_rel_path}
@@ -107,6 +106,7 @@ function fInstaller()
     # cp -rf resource ${var_rel_path}/
     # cp -rf plugin/pluginclient.py ${var_rel_path}/plugin/
     # cp -rf scripts/* ${var_rel_path}/scripts/
+    cp ${var_rel_path}/clipsync.exe ${PATH_ROOT}/
     mv ${var_rel_path}/clipsync.exe ${var_rel_path}/clipsync_${var_version}_${VAR_BUILD_TYPE}.exe
     mv ${var_rel_path} clipsync_${var_version}_${VAR_BUILD_TYPE}
 

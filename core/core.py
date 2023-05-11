@@ -6,15 +6,23 @@ import threading
 from cliphal.clipmanager import *
 from network.client import *
 from network.crypto import *
+from core.configtools import *
 
 class Core:
     def __init__(self):
         self.flag_run = False
         self.previous_clips = ''
+        # 30hz
+        self.respond_delay = 0.32
+        # config
+        self.cfg_mgr = ConfigManager(Config)
 
+
+        # clip
         clipmgr = ClipManager()
         self.clip_ins = clipmgr.getClipInstance()
         self.previous_clips = self.clip_ins.getBuffer()
+
 
         # self.service_threading = None
         self.server_ip = None
@@ -37,7 +45,8 @@ class Core:
     def network_callback(self, package):
         # dbg_print(content.__str__())
         if package.content is not None and len(package.content) > 0:
-            decrypted_content = self.crypto.decrypt(package.content).decode(encoding="utf8")
+            # decrypted_content = self.crypto.decrypt(package.content).decode(encoding="utf8")
+            decrypted_content = self.crypto.decrypt(package.content)
             self.previous_clips = decrypted_content
             self.clip_ins.setBuffer(decrypted_content)
             dbg_info('Set clipboard {}: "{}"'.format(len(decrypted_content) ,decrypted_content))
@@ -59,21 +68,21 @@ class Core:
                     self.previous_clips = clip_buffer
                     # dbg_print("Value changed: %s" % str(self.previous_clips)[:20])
                     dbg_info("clipboard changed, notify server. buffer: {}\n".format(clip_buffer))
-                    # srv_client.send(clip_buffer)
-                    dbg_print(clip_buffer)
-                    srv_client.send(self.crypto.encrypt(clip_buffer.encode('utf8')))
+                    # srv_client.send(self.crypto.encrypt(clip_buffer.encode('utf8')))
+                    srv_client.send(self.crypto.encrypt(clip_buffer))
             except Exception as e:
                 dbg_error(e)
 
                 traceback_output = traceback.format_exc()
                 dbg_error(traceback_output)
             finally:
-                time.sleep(0.1)
+                time.sleep(self.respond_delay)
 
         self.flag_run = False
         srv_client.quit()
     def quit(self):
         self.flag_run = False
+        self.cfg_mgr.save()
 
         # clipboard.paste()
         # clipboard.copy(text_buf)

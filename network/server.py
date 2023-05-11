@@ -11,66 +11,15 @@ class ClientService(SocketBase):
         super().__init__()
         self.setConnection(connection)
         self.address = address
-        self.regPackageHandler(broadcast)
+        self._broadcast = broadcast
+        self.regPackageHandler(self.srvBroadcast)
 
+    def srvBroadcast(self, package):
+        self._broadcast(package, self.socket.getpeername())
     def start(self):
         self.startService()
     def send(self, package):
         self.sendPackage(package)
-
-# class ClientService(SocketConnection):
-#     def __init__(self, connection, address, broadcast):
-#         super().__init__()
-#         self.connection = connection
-#         self.address = address
-#         self.broadcast = broadcast
-#         self.flag_run = False
-
-#         self.connection.settimeout(self.timeout)
-#     def start(self):
-#         self._service()
-#     def send(self, package):
-#         if package is not None:
-#             dbg_debug('[{}]: send "{}"'.format(self.address, package))
-#             self.connection.sendall(package.toBytes())
-#     def _service(self):
-#         self.flag_run = True
-
-#         prev_socket_buffer = ''
-#         while self.flag_run:
-#             try:
-#                 pkg = self.recievePackage(self.connection)
-#                 if pkg is not None:
-#                     self.broadcast(pkg)
-#                 else:
-#                     time.sleep(self.interval)
-#             except socket.timeout as e:
-#                 continue
-#             except (BrokenPipeError, ConnectionResetError) as e:
-#                 dbg_info('[{}] connection lost'.format(self.address), e)
-#             except Exception as e:
-#                 dbg_error('[{}]'.format(self.address), e)
-
-#                 traceback_output = traceback.format_exc()
-#                 dbg_error('[{}]'.format(self.address), traceback_output)
-#                 time.sleep(self.interval)
-
-#         dbg_info('[{}]: Connection End.'.format(self.address))
-#         self.connection.close()
-#     def quit(self):
-#         self.flag_run = False
-#         # if self.connection is not None:
-#         #     self.connection.close()
-#         # Test server close
-#         try:
-#             self.connection.shutdown(socket.SHUT_RDWR)
-#         except:
-#             pass
-#         try:
-#             self.connection.close()
-#         except:
-#             pass
-#         # self.service_thread.join()
 
 class Server(SocketConfig):
     def __init__(self):
@@ -101,11 +50,14 @@ class Server(SocketConfig):
     def start(self):
         self._service()
 
-    def broadcast(self, package):
+    def broadcast(self, package, ori_src):
         self._wait_connection()
         # dbg_info('broadcast:',len(self.client_service), ', ',package, )
-        for each_client in self.client_service:
+        dbg_info('broadcast({}):{}'.format(len(self.client_service), package))
 
+        for each_client in self.client_service:
+            if each_client.getPeerHostname()[0] == ori_src[0] and each_client.getPeerHostname()[1] == ori_src[1]:
+                continue
             try:
                 each_client.send(package)
             except Exception as e:
@@ -113,14 +65,16 @@ class Server(SocketConfig):
 
                 traceback_output = traceback.format_exc()
                 dbg_debug(traceback_output)
+    def serverStatus(self):
+        dbg_info('Online Connection: {}'.format(len(self.client_service)))
     def startClient(self, client_svc):
         self.client_service.append(client_svc)
         dbg_debug('Start:', self.client_service)
         client_svc.start()
         self.client_service.remove(client_svc)
-        dbg_debug('After:', self.client_service)
-        # client_ins = 
-        # del self.client_svc[client_svc]
+        dbg_debug('End of client:{}'.format(self.client_service))
+        self.serverStatus()
+
     def _service(self):
         self.flag_run = True
 

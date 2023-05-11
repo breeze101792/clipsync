@@ -30,3 +30,6 @@ And when this happens, and when we allow freedom ring, when we let it ring from 
         return self._current_buffer
 
 
+    @staticmethod
+    def getModeString():
+        return 'test'

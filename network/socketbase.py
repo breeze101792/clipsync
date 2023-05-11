@@ -64,20 +64,25 @@ class SocketBase(SocketConfig):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.connect((self.server_ip, self.server_port))
         self.modifyBufferSize(self.socket)
+    def connectionLostHandler(self):
+        # default empty, not all socket will need this function
+        return False
     def sendPackage(self, package):
+        self._wait_connection()
         if package is not None:
+
+            # hard coded to 01
+            package.type = '01'
+            package.srcip = self.socket.getsockname()[0]
+            package.destip = self.socket.getpeername()[0]
+
             dbg_debug('[{}]: send "{}"'.format(self.address, package))
+
             self.socket.sendall(package.toBytes())
     def sendData(self, content):
-        self._wait_connection()
-        try:
-            tmp_pkg = Package()
-            tmp_pkg.content = content
-            self.socket.sendall(tmp_pkg.toBytes())
-        except Exception as e:
-            print(e)
-            traceback_output = traceback.format_exc()
-            print(traceback_output)
+        tmp_pkg = Package()
+        tmp_pkg.content = content
+        self.sendPackage(tmp_pkg)
 
     def startThread(self):
         self.service_threading = threading.Thread(target=self.service)
@@ -95,17 +100,21 @@ class SocketBase(SocketConfig):
                 pkg = self.recievePackage(self.socket)
                 if pkg is not None:
                     self._package_handler(pkg)
-                else:
-                    time.sleep(self.interval)
+                 # else:
+                 #     # no need to delay, since we have timeout on recieve
+                 #     time.sleep(self.interval)
             except socket.timeout as e:
                 continue
-            except (BrokenPipeError, ConnectionResetError) as e:
+            except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError) as e:
                 dbg_info('[{}] socket lost'.format(self.address), e)
+                if self.connectionLostHandler() is False:
+                    return
             except Exception as e:
                 dbg_error('[{}]'.format(self.address), e)
 
                 traceback_output = traceback.format_exc()
                 dbg_error('[{}]'.format(self.address), traceback_output)
+                # prevending conection error
                 time.sleep(self.interval)
 
         dbg_info('[{}]: Connection End.'.format(self.address))
@@ -124,6 +133,8 @@ class SocketBase(SocketConfig):
             recv_cnt = 5
             while missing_len != 0 and recv_cnt > 0:
                 missing_len = pkg.fromBytes(data)
+                # we still have missing byte, delay for waiting transmission
+                time.sleep(0.01)
                 if missing_len > 0:
                     dbg_debug('Byte missing: ', missing_len, ', ', data[-64:])
                     missing_byte = socket.recv(missing_len)
@@ -135,6 +146,9 @@ class SocketBase(SocketConfig):
         else:
             return None
             # time.sleep(self.interval)
+    def getPeerHostname(self):
+        return  self.socket.getpeername()
+
     def quit(self):
         self.flag_run = False
         if self.socket is not None:

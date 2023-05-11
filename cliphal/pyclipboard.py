@@ -1,44 +1,34 @@
 import traceback
 from cliphal.clipbase import *
 from utility.debug import *
-
 try:
-    # this two package is require for pyclip
-    import win32clipboard
-    import win32con
-except Exception as e:
-    dbg_error(e)
-    traceback_output = traceback.format_exc()
-    dbg_error(traceback_output)
-
-try:
-    import pyclip
+    import clipboard
 except Exception as e:
     pass
 
-class PyClip(ClipBase):
+class PyClipboard(ClipBase):
     def __init__(self):
         pass
     def _setBuffer(self, byte_buffer):
         try:
-            return pyclip.copy(byte_buffer)
+            return clipboard.copy(byte_buffer.decode(encoding='utf8'))
         except Exception as e:
             dbg_error(e)
             traceback_output = traceback.format_exc()
             dbg_error(traceback_output)
+        return ''
     def _getBuffer(self):
         try:
-            return pyclip.paste()
+            return clipboard.paste().encode('utf8')
         except Exception as e:
             dbg_error(e)
             traceback_output = traceback.format_exc()
             dbg_error(traceback_output)
-        return None
-
+        return ''
     @staticmethod
     def isSupported():
         try:
-            return pyclip.paste()
+            return clipboard.paste()
         except Exception as e:
             dbg_error(e)
             traceback_output = traceback.format_exc()
@@ -48,4 +38,4 @@ class PyClip(ClipBase):
 
     @staticmethod
     def getModeString():
-        return 'pyclip'
+        return 'clipboard'

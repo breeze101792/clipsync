@@ -1,22 +1,35 @@
 import sys
+from core.configtools import *
 from cliphal.clipbase import *
 from cliphal.terminal import *
 from cliphal.macclip import *
 from cliphal.pyclip import *
+from cliphal.pyclipboard import *
 from cliphal.testclip import *
 from utility.debug import *
 
 class ClipManager:
     def __init__(self):
 
-        if MacClip.isSupported():
+        dbg_info('Clip mode:', Config._args.clip_mode)
+        if MacClip.getModeString() == Config._args.clip_mode:
             self._clip_hal = MacClip()
 
-        elif PyClip.isSupported():
+        elif PyClip.getModeString() == Config._args.clip_mode:
             self._clip_hal = PyClip()
-        # elif TestClip.isSupported():
-        #     dbg_warning('Using Termianl Clips will not work on GUI')
-        #     self._clip_hal = TestClip()
+        elif PyClipboard.getModeString() == Config._args.clip_mode:
+            self._clip_hal = PyClipboard()
+        elif Terminal.getModeString() == Config._args.clip_mode:
+            self._clip_hal = Terminal()
+        elif TestClip.getModeString() == Config._args.clip_mode:
+            self._clip_hal = TestClip()
+
+        elif MacClip.isSupported():
+            self._clip_hal = MacClip()
+        # elif PyClip.isSupported():
+        #     self._clip_hal = PyClip()
+        elif PyClipboard.isSupported():
+            self._clip_hal = PyClipboard()
         elif Terminal.isSupported():
             dbg_warning('Using Termianl Clips will not work on GUI System')
             self._clip_hal = Terminal()

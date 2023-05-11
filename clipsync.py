@@ -9,7 +9,7 @@ import time
 from core.core import *
 from network.server import *
 from utility.debug import *
-from core.configMgr import *
+from core.configtools import *
 
 def main():
     parser = OptionParser(usage='Usage: clipsync [options] ......')
@@ -23,6 +23,10 @@ def main():
                     help="Specify server port", action="store")
     parser.add_option("-s", "--start-server", dest="server", default=False,
                     help="Start server", action="store_true")
+    parser.add_option("-m", "--clip-mode", dest="clip_mode",
+                    help="Choose clip mode(HAL)", action="store")
+    parser.add_option("-c", "--config-path", dest="config",
+                    help="Start server", action="store")
     # parser.add_option("-l", "--list", dest="list",
     #                 help="List words on wordbank", action="store_true")
     # parser.add_option("-L", "--word-level", dest="word_level",
@@ -33,24 +37,31 @@ def main():
     (options, args) = parser.parse_args()
     # Config
     ################################################################
-    cfg_mgr = ConfigManager()
-    cfg_mgr.initialize(Config)
+    cfg_mgr = ConfigManager(Config)
+    if options.config is not None:
+        cfg_mgr.load(options.config)
+    else:
+        cfg_mgr.load()
 
     if options.debug is True:
-        # DebugSetting.debug_level = DebugLevel.MAX
-        Config.Debug.log_level = 'Debug'
-        # dbg_debug('Enable debug Mode')
+        Config.log_level = 'Debug'
     else:
-        Config.Debug.log_level = 'Information'
+        Config.log_level = 'Information'
 
     if options.server_ip is not None:
         Config.Server.ip = options.server_ip
     if options.server_port is not None:
         Config.Server.port = options.server_port
 
+    if options.clip_mode is not None:
+        Config._args.clip_mode = options.clip_mode
+
     # Presetting
     ################################################################
-    DebugSetting.setDbgLevel(Config.Debug.log_level)
+    if DebugSetting.setDbgLevel(Config.log_level) is False:
+        Config.log_level = 'Information'
+        dbg_warning('Debug level setting fail. rollback to {}'.format(Config.log_level))
+        DebugSetting.setDbgLevel(Config.log_level)
     dbg_debug('Server Info:{}:{}'.format(Config.Server.ip, Config.Server.port))
 
     # Main code start
@@ -75,7 +86,8 @@ def main():
         traceback_output = traceback.format_exc()
         dbg_error(traceback_output)
     finally:
-        thread_ins.quit()
+        if thread_ins is not None:
+            thread_ins.quit()
         sys.exit()
 
 if __name__ == '__main__':

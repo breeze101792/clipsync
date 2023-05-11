@@ -25,3 +25,6 @@ class MacClip(ClipBase):
         else:
             return False
 
+    @staticmethod
+    def getModeString():
+        return 'macclip'

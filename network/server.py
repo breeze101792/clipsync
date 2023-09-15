@@ -56,9 +56,9 @@ class Server(SocketConfig):
         dbg_info('broadcast({}):{}'.format(len(self.client_service), package))
 
         for each_client in self.client_service:
-            if each_client.getPeerHostname()[0] == ori_src[0] and each_client.getPeerHostname()[1] == ori_src[1]:
-                continue
             try:
+                if each_client.getPeerHostname()[0] == ori_src[0] and each_client.getPeerHostname()[1] == ori_src[1]:
+                    continue
                 each_client.send(package)
             except Exception as e:
                 dbg_debug(e)

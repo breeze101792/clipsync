@@ -64,6 +64,13 @@ class SocketBase(SocketConfig):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.connect((self.server_ip, self.server_port))
         self.modifyBufferSize(self.socket)
+    def reConnection(self):
+        if self.socket is not None:
+            self.socket.close()
+
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.socket.connect((self.server_ip, self.server_port))
+        self.modifyBufferSize(self.socket)
     def connectionLostHandler(self):
         # default empty, not all socket will need this function
         return False
@@ -109,6 +116,9 @@ class SocketBase(SocketConfig):
                 dbg_info('[{}] socket lost'.format(self.address), e)
                 if self.connectionLostHandler() is False:
                     return
+                else:
+                    dbg_info('[{}] socket reconnected.'.format(self.address), e)
+
             except Exception as e:
                 dbg_error('[{}]'.format(self.address), e)
 

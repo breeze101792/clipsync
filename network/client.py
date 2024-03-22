@@ -16,19 +16,21 @@ class Client(SocketBase):
     def connectionLostHandler(self):
 
         retry_cnt = 0
+        sleep_time = 300
+        max_try = 4 * 60 * 60 / sleep_time;
         # while retry_cnt < 1000:
-        while True:
-            time.sleep(1)
+        while retry_cnt < max_try:
+            time.sleep(sleep_time)
             try:
                 dbg_info('Try Reconnect({}) {}:{}'.format(retry_cnt, self.server_ip, self.server_port))
-                self.socket.connect((self.server_ip, self.server_port))
+                self.reConnection()
+                break
             except Exception as e:
                 dbg_debug('Reconnect fail:{}:{}'.format(self.server_ip, self.server_port))
-                # return False
-                # print(e)
+                print(e)
 
-                # traceback_output = traceback.format_exc()
-                # print(traceback_output)
+                traceback_output = traceback.format_exc()
+                print(traceback_output)
             retry_cnt += 1
         return True
 

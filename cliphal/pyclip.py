@@ -7,9 +7,10 @@ try:
     import win32clipboard
     import win32con
 except Exception as e:
-    dbg_error(e)
-    traceback_output = traceback.format_exc()
-    dbg_error(traceback_output)
+    # dbg_error(e)
+    # traceback_output = traceback.format_exc()
+    # dbg_error(traceback_output)
+    pass
 
 try:
     import pyclip

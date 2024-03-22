@@ -8,7 +8,7 @@ from utility.debug import *
 
 class Config:
     # Read only variable
-    version='0.2.5'
+    version='0.2.6'
     program_name = 'Config Manager'
     config_file = "./config.json"
     log_level = "Information"

@@ -47,9 +47,14 @@ class Core:
         if package.content is not None and len(package.content) > 0:
             # decrypted_content = self.crypto.decrypt(package.content).decode(encoding="utf8")
             decrypted_content = self.crypto.decrypt(package.content)
-            self.previous_clips = decrypted_content
-            self.clip_ins.setBuffer(decrypted_content)
-            dbg_info('Set clipboard {}: "{}"'.format(len(decrypted_content) ,decrypted_content))
+            # We need to preventing seting the same content on host.
+            # It may lose formating on clip text
+            if decrypted_content != self.previous_clips:
+                self.previous_clips = decrypted_content
+                self.clip_ins.setBuffer(decrypted_content)
+                dbg_info('Set clipboard {}: "{}"'.format(len(decrypted_content) ,decrypted_content))
+            else:
+                dbg_info('The same clipboard content. {}: "{}"'.format(len(decrypted_content) ,decrypted_content))
         else:
             dbg_debug('buffer invalid: {}: "{}"'.format(len(decrypted_content) ,decrypted_content))
 

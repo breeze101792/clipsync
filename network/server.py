@@ -73,8 +73,9 @@ class Server(SocketConfig):
         self.client_service.append(client_svc)
         dbg_debug('Start:', self.client_service)
         client_svc.start()
-        self.client_service.remove(client_svc)
-        dbg_debug('End of client:{}'.format(self.client_service))
+        if client_svc in self.client_service:
+            self.client_service.remove(client_svc)
+        dbg_info('End of client:{}'.format(self.client_service))
         self.serverStatus()
 
     def _service(self):

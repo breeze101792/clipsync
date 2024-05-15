@@ -14,25 +14,36 @@ class Client(SocketBase):
     def send(self, content):
         self.sendData(content)
     def connectionLostHandler(self):
+        connect_status=False
 
         retry_cnt = 0
-        sleep_time = 300
-        max_try = 4 * 60 * 60 / sleep_time;
-        # while retry_cnt < 1000:
-        while retry_cnt < max_try:
-            time.sleep(sleep_time)
-            try:
-                dbg_info('Try Reconnect({}) {}:{}'.format(retry_cnt, self.server_ip, self.server_port))
-                self.reConnection()
-                break
-            except Exception as e:
-                dbg_debug('Reconnect fail:{}:{}'.format(self.server_ip, self.server_port))
-                print(e)
+        sleep_time = 60
+        max_sleep_time = 900
 
-                traceback_output = traceback.format_exc()
-                print(traceback_output)
-            retry_cnt += 1
-        return True
+        while connect_status is False:
+            time.sleep(sleep_time)
+
+            try:
+                dbg_info('[{}] Try Reconnect {}:{}'.format(retry_cnt, self.server_ip, self.server_port))
+                self.reConnection()
+                connect_status = True
+            except Exception as e:
+                sleep_time = sleep_time + 60 if sleep_time != max_sleep_time else max_sleep_time
+                dbg_debug('-> Reconnect fail:{}:{}, wait for {}'.format(self.server_ip, self.server_port, sleep_time))
+                retry_cnt += 1
+            #     sleep_time = (sleep_time * 2) % max_sleep_time
+            #     dbg_debug('Reconnect fail:{}:{}, wait for {}'.format(self.server_ip, self.server_port, sleep_time))
+            #     dbg_debug(e)
+            #
+            #     traceback_output = traceback.format_exc()
+            #     dbg_debug(traceback_output)
+            # finally:
+                # sleep_time = sleep_time + 60 if sleep_time != max_sleep_time else max_sleep_time
+                # dbg_debug('Reconnect fail:{}:{}, wait for {}'.format(self.server_ip, self.server_port, sleep_time))
+                # retry_cnt += 1
+
+        dbg_debug('-> Reconnect successfully:{}:{}'.format(self.server_ip, self.server_port))
+        return connect_status
 
 if __name__ == "__main__":
 

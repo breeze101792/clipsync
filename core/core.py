@@ -80,6 +80,9 @@ class Core:
 
                 traceback_output = traceback.format_exc()
                 dbg_error(traceback_output)
+
+                dbg_error("Wait 1s before continue.\n")
+                time.sleep(1)
             finally:
                 time.sleep(self.respond_delay)
 

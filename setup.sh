@@ -94,6 +94,7 @@ function fInstaller()
     # then
     #     var_options+=("--noconsole ")
     # fi
+    test -d build && rm -rf build
     if [ "${VAR_OS}" = 'win' ]
     then
         python.exe ${var_options[@]} clipsync.py

@@ -9,7 +9,7 @@ class SocketConfig:
     def __init__(self):
         self.server_ip = '0.0.0.0'
         self.server_port = 11320
-        self.interval = 0.1
+        self.interval = 1
         self.timeout = 0.1
         self.buffer_size = 8192
         self.recv_buffer = self.buffer_size
@@ -60,10 +60,28 @@ class SocketBase(SocketConfig):
         return False
     def setConnection(self, connection):
         self.socket = connection
-    def createConnection(self):
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket.connect((self.server_ip, self.server_port))
-        self.modifyBufferSize(self.socket)
+    def createConnection(self, retry=False):
+        retry_sleep=10
+        while True:
+            try:
+                self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                self.socket.connect((self.server_ip, self.server_port))
+                self.modifyBufferSize(self.socket)
+                dbg_info('Connect to Server({}:{})'.format(self.server_ip, self.server_port))
+                break
+            except socket.timeout as e:
+                dbg_error('Connect Timeout, Please fix networking. Sleep for {} seconds'.format(retry_sleep))
+                dbg_error('[{}]'.format(self.address), e)
+
+                traceback_output = traceback.format_exc()
+                dbg_error('[{}]'.format(self.address), traceback_output)
+                # prevending conection error
+                time.sleep(retry_sleep)
+                if retry is True:
+                    continue
+                else:
+                    raise e
+
     def reConnection(self):
         if self.socket is not None:
             self.socket.close()

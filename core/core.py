@@ -62,7 +62,7 @@ class Core:
         srv_client = Client()
         srv_client.setServerInfo(server_ip=self.server_ip, server_port=self.server_port)
         srv_client.regPackageHandler(self.network_callback)
-        srv_client.createConnection()
+        srv_client.createConnection(retry=True)
         srv_client.start()
         self.flag_run = True
 

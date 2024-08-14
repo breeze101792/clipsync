@@ -68,7 +68,7 @@ class Server(SocketConfig):
                 each_client.quit()
                 self.client_service.remove(each_client)
     def serverStatus(self):
-        dbg_info('Online Connection: {}'.format(len(self.client_service)))
+        dbg_info('Status updated: {} Online Connection.'.format(len(self.client_service)))
     def startClient(self, client_svc):
         self.client_service.append(client_svc)
         dbg_debug('Start:', self.client_service)
@@ -76,7 +76,7 @@ class Server(SocketConfig):
         if client_svc in self.client_service:
             self.client_service.remove(client_svc)
         dbg_info('End of client:{}'.format(self.client_service))
-        self.serverStatus()
+        # self.serverStatus()
 
     def _service(self):
         self.flag_run = True
@@ -100,6 +100,7 @@ class Server(SocketConfig):
                 client_thread = threading.Thread(target=self.startClient, args=(client_svc,))
                 client_thread.daemon=True
                 client_thread.start()
+                self.serverStatus()
 
                 time.sleep(self.interval)
             except socket.timeout as e:

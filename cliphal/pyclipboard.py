@@ -30,9 +30,9 @@ class PyClipboard(ClipBase):
         try:
             return clipboard.paste()
         except Exception as e:
-            dbg_error(e)
-            traceback_output = traceback.format_exc()
-            dbg_error(traceback_output)
+            # dbg_error(e)
+            # traceback_output = traceback.format_exc()
+            # dbg_error(traceback_output)
             return False
         return True
 

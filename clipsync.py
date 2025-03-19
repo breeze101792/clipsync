@@ -24,7 +24,7 @@ def main():
     parser.add_option("-s", "--start-server", dest="server", default=False,
                     help="Start server", action="store_true")
     parser.add_option("-m", "--clip-mode", dest="clip_mode",
-                      help="Choose clip mode(HAL), Mode: pyclip/clipboard/macclip/terminal", action="store")
+                      help="Choose clip mode(HAL), Mode: pyclip(windows)/clipboard(linux)/macclip(mac)/terminal/asrclip(audio)", action="store")
     parser.add_option("-c", "--config-path", dest="config",
                     help="Start server", action="store")
     # parser.add_option("-l", "--list", dest="list",

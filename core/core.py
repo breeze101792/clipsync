@@ -69,7 +69,7 @@ class Core:
         while self.flag_run:
             try:
                 clip_buffer = self.clip_ins.getBuffer()
-                if len(clip_buffer) > 0 and clip_buffer != self.previous_clips:
+                if clip_buffer is not None and len(clip_buffer) > 0 and clip_buffer != self.previous_clips:
                     self.previous_clips = clip_buffer
                     # dbg_print("Value changed: %s" % str(self.previous_clips)[:20])
                     dbg_info("clipboard changed, notify server. buffer: {}\n".format(clip_buffer))

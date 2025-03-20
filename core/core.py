@@ -52,9 +52,9 @@ class Core:
             if decrypted_content != self.previous_clips:
                 self.previous_clips = decrypted_content
                 self.clip_ins.setBuffer(decrypted_content)
-                dbg_info('Set clipboard {}: "{}"'.format(len(decrypted_content) ,decrypted_content))
+                dbg_info('Set clipboard {}: "{}"'.format(len(decrypted_content) ,decrypted_content.decode(encoding="utf8")))
             else:
-                dbg_info('The same clipboard content. {}: "{}"'.format(len(decrypted_content) ,decrypted_content))
+                dbg_info('The same clipboard content. {}: "{}"'.format(len(decrypted_content) ,decrypted_content.decode(encoding="utf8")))
         else:
             dbg_debug('buffer invalid: {}: "{}"'.format(len(decrypted_content) ,decrypted_content))
 

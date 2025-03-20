@@ -32,7 +32,7 @@ class ClipManager:
         elif PyClipboard.isSupported():
             self._clip_hal = PyClipboard()
         elif ASRClip.getModeString() == Config._args.clip_mode:
-            self._clip_hal = ASRClip()
+            self._clip_hal = ASRClip(device_index = int(Config._args.device_index))
         elif Terminal.isSupported():
             dbg_warning('Using Termianl Clips will not work on GUI System')
             self._clip_hal = Terminal()

@@ -1,7 +1,6 @@
 import traceback
 from cliphal.clipbase import *
 from utility.debug import *
-from opencc import OpenCC
 
 try:
     from cliphal.hal.halasr import *
@@ -12,10 +11,10 @@ except Exception as e:
     pass
 
 class ASRClip(ClipBase):
-    def __init__(self):
-        self.asr = ASRService()
+    def __init__(self, device_index = 0):
+        self.asr = ASRService(device_index = device_index)
+        # disable punctuation
         self.asr.start()
-        self.cc = OpenCC('s2t')
     def _setBuffer(self, byte_buffer):
         # we don't support this.
         pass
@@ -23,7 +22,6 @@ class ASRClip(ClipBase):
         try:
             clip_buf = self.asr.get()
             if clip_buf is not None:
-                clip_buf = self.cc.convert(clip_buf)
                 dbg_trace(clip_buf)
                 return clip_buf.encode('utf8')
             else:

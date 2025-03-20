@@ -13,6 +13,8 @@ from core.configtools import *
 
 def main():
     parser = OptionParser(usage='Usage: clipsync [options] ......')
+    parser.add_option("-a", "--audio-index", dest="device_index",
+                    help="Specify audio index", action="store", default=0)
     parser.add_option("-t", "--test", dest="test",
                     help="testing function", action="store_true")
     parser.add_option("-d", "--debug", dest="debug",
@@ -24,7 +26,7 @@ def main():
     parser.add_option("-s", "--start-server", dest="server", default=False,
                     help="Start server", action="store_true")
     parser.add_option("-m", "--clip-mode", dest="clip_mode",
-                      help="Choose clip mode(HAL), Mode: pyclip/clipboard/macclip/terminal", action="store")
+                      help="Choose clip mode(HAL), Mode: pyclip(windows)/clipboard(linux)/macclip(mac)/terminal/asrclip(audio)", action="store")
     parser.add_option("-c", "--config-path", dest="config",
                     help="Start server", action="store")
     # parser.add_option("-l", "--list", dest="list",
@@ -55,6 +57,8 @@ def main():
 
     if options.clip_mode is not None:
         Config._args.clip_mode = options.clip_mode
+    if options.device_index is not None:
+        Config._args.device_index = options.device_index
 
     # Presetting
     ################################################################

@@ -66,7 +66,8 @@ class Server(SocketConfig):
                 traceback_output = traceback.format_exc()
                 dbg_debug(traceback_output)
                 each_client.quit()
-                self.client_service.remove(each_client)
+                if each_client in self.client_service:
+                    self.client_service.remove(each_client)
     def serverStatus(self):
         dbg_info('Status updated: {} Online Connection.'.format(len(self.client_service)))
     def startClient(self, client_svc):

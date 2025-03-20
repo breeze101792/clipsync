@@ -119,12 +119,26 @@ function fSetup()
 {
     fPrintHeader ${FUNCNAME[0]}
     local var_rel_path='dist'
+    local var_pkg_list=("clipboard" "pyinstaller" "cryptography")
 
     if [ "${VAR_OS}" = 'win' ]
     then
-        pip.exe install clipboard pyinstaller cryptography
+        pip.exe install ${var_pkg_list[@]}
     else
-        pip install clipboard pyinstaller cryptography
+        pip install ${var_pkg_list[@]}
+    fi
+}
+function fSetup_audio()
+{
+    fPrintHeader ${FUNCNAME[0]}
+    local var_rel_path='dist'
+    local var_pkg_list=("funasr" "pyaudio" "torch" "torchaudio" "webrtcvad")
+
+    if [ "${VAR_OS}" = 'win' ]
+    then
+        pip.exe install ${var_pkg_list[@]}
+    else
+        pip install ${var_pkg_list[@]}
     fi
 }
 
@@ -134,6 +148,7 @@ function fMain()
 {
     # fPrintHeader "Launch ${VAR_SCRIPT_NAME}"
     local flag_setup=false
+    local flag_setup_audio_input=false
     local flag_verbose=false
     local flag_fakeserial=false
     local flag_installer=false
@@ -144,6 +159,9 @@ function fMain()
             # Options
             -s|--setup)
                 flag_setup=true
+                ;;
+            -sa|--setup-audio)
+                flag_setup_audio_input=true
                 ;;
             -i|--installer)
                 flag_installer=true
@@ -188,6 +206,10 @@ function fMain()
     if [ ${flag_setup} = true ]
     then
         fSetup
+    fi
+    if [ ${flag_setup_audio_input} = true ]
+    then
+        fSetup_audio
     fi
 
     if [ ${flag_installer} = true ]

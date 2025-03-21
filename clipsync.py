@@ -11,10 +11,15 @@ from network.server import *
 from utility.debug import *
 from core.configtools import *
 
+# for audio dev list
+from cliphal.asrclip import *
+
 def main():
     parser = OptionParser(usage='Usage: clipsync [options] ......')
     parser.add_option("-a", "--audio-index", dest="device_index",
-                    help="Specify audio index", action="store", default=0)
+                    help="Specify mic device index", action="store", default=0)
+    parser.add_option("-l", "--mic-list", dest="mic_list",
+                    help="List mic devices", action="store_true", default=False)
     parser.add_option("-t", "--test", dest="test",
                     help="testing function", action="store_true")
     parser.add_option("-d", "--debug", dest="debug",
@@ -59,6 +64,11 @@ def main():
         Config._args.clip_mode = options.clip_mode
     if options.device_index is not None:
         Config._args.device_index = options.device_index
+        Config._args.clip_mode = 'asrclip'
+    if options.mic_list is True:
+        ASRClip.listAudioDevice()
+        Config._args.device_index = input("Please select your devices index:")
+        Config._args.clip_mode = 'asrclip'
 
     # Presetting
     ################################################################

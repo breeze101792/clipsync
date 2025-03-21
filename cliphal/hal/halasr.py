@@ -63,7 +63,8 @@ class ASRService:
 
         # init cc
         self.cc = OpenCC('s2t')
-    def list_audio_devices(self, test_sample_rates=None):
+    @staticmethod
+    def list_audio_devices(test_sample_rates=None):
         """
         列出 PyAudio 所有輸入裝置以及其支援的 sample rate 測試結果
         """
@@ -82,13 +83,13 @@ class ASRService:
                 192000  # 專業錄音
             ]
 
-        # self.audio = pyaudio.PyAudio()
-        device_count = self.audio.get_device_count()
+        audio = pyaudio.PyAudio()
+        device_count = audio.get_device_count()
 
         print("🎧 Audio Input Device List:\n")
 
         for i in range(device_count):
-            info = self.audio.get_device_info_by_index(i)
+            info = audio.get_device_info_by_index(i)
 
             if info.get("maxInputChannels") > 0:
                 print(f"🔹 Device Index: {i}")
@@ -99,7 +100,7 @@ class ASRService:
                 print("    Supported Sample Rates:")
                 for rate in test_sample_rates:
                     try:
-                        self.audio.is_format_supported(rate,
+                        audio.is_format_supported(rate,
                                                input_device=info["index"],
                                                input_channels=1,
                                                input_format=pyaudio.paInt16)
@@ -110,7 +111,7 @@ class ASRService:
 
                 print("-" * 50)
 
-        # self.audio.terminate()
+        audio.terminate()
     def get(self):
         if self.text_queue.empty() is False:
             message = self.text_queue.get()

@@ -46,3 +46,6 @@ class ASRClip(ClipBase):
     @staticmethod
     def getModeString():
         return 'asrclip'
+    @staticmethod
+    def listAudioDevice():
+        ASRService.list_audio_devices()

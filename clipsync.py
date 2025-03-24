@@ -17,7 +17,7 @@ from cliphal.asrclip import *
 def main():
     parser = OptionParser(usage='Usage: clipsync [options] ......')
     parser.add_option("-a", "--audio-index", dest="device_index",
-                    help="Specify mic device index", action="store", default=0)
+                    help="Specify mic device index", action="store", default=-1)
     parser.add_option("-l", "--mic-list", dest="mic_list",
                     help="List mic devices", action="store_true", default=False)
     parser.add_option("-t", "--test", dest="test",
@@ -60,15 +60,18 @@ def main():
     if options.server_port is not None:
         Config.Server.port = options.server_port
 
-    if options.clip_mode is not None:
-        Config._args.clip_mode = options.clip_mode
-    if options.device_index is not None:
+    if options.device_index == -1:
+        Config._args.device_index = 0
+    else:
         Config._args.device_index = options.device_index
         Config._args.clip_mode = 'asrclip'
     if options.mic_list is True:
         ASRClip.listAudioDevice()
         Config._args.device_index = input("Please select your devices index:")
         Config._args.clip_mode = 'asrclip'
+
+    if options.clip_mode is not None:
+        Config._args.clip_mode = options.clip_mode
 
     # Presetting
     ################################################################

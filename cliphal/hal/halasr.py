@@ -1,8 +1,8 @@
 import traceback
+import sys
 import pyaudio
 import time
 import threading
-from funasr import AutoModel
 import webrtcvad
 import queue
 import numpy as np
@@ -56,7 +56,8 @@ class ASRService:
                     self.HOTWORDS.append(each_word)
 
         # load model
-        self.model = AutoModel(model=self.ASR_MODEL, vad_model=self.VAD_MODEL, punc_model=self.PUNC_MODEL, disable_update=True, disable_log=True, disable_pbar=True)
+        # self.model = AutoModel(model=self.ASR_MODEL, vad_model=self.VAD_MODEL, punc_model=self.PUNC_MODEL, disable_update=True, disable_log=True, disable_pbar=True)
+        self.model = None
 
         # Init mic
         self.audio = pyaudio.PyAudio()
@@ -197,9 +198,29 @@ class ASRService:
             is_cmd = True
 
         return is_cmd
+    def __model_init(self):
+        module_name="funasr"
+        if module_name not in sys.modules:
+            from funasr import AutoModel
+        else:
+            print('Model has been inited.')
+
+        if self.model is None:
+            self.model = AutoModel(model=self.ASR_MODEL, vad_model=self.VAD_MODEL, punc_model=self.PUNC_MODEL, disable_update=True, disable_log=True, disable_pbar=True)
+
     def recognize_audio(self, filename):
-        result = self.model.generate(input=filename)
-        return result[0]['text']
+        if self.model is None:
+            self.__model_init()
+
+        recognized_text = ""
+        try:
+            result = self.model.generate(input=filename)
+            recognized_text = result[0]['text']
+        except Exception as e:
+            print(e)
+            traceback_output = traceback.format_exc()
+            print(traceback_output)
+        return recognized_text
 
     def listen_continuous(self):
         # 初始化 VAD
@@ -248,6 +269,9 @@ class ASRService:
                     # record data.
                     if is_recording is True:
                         audio_list.append(data)
+                    else:
+                        # we keep the first data is silence.
+                        audio_list = [data]
 
                     # 偵測停止（若無聲音超過 SILENCE_DURATION 秒則結束錄音）
                     silence_duration = time.time() - silence_start_time
@@ -258,15 +282,23 @@ class ASRService:
                 print("\n🛑 Stop listening.")
                 break
 
-            # 組合音訊數據
-            audio_data = b''.join(audio_list)
-            self.save_wave(self.tmp_file, audio_data, self.AUDIO_RATE)
-            text_result = self.recognize_audio(self.tmp_file)
-            if text_result != "" and self.command_event_handler(text_result) is False:
-                if self.text_queue.qsize() > self.def_queue_limit:
-                    print("Hit queue limit, just clear queue.")
-                    self.text_queue.queue.clear()
-                self.text_queue.put(text_result)
+            try:
+                # 組合音訊數據
+                audio_data = b''.join(audio_list)
+                self.save_wave(self.tmp_file, audio_data, self.AUDIO_RATE)
+                text_result = self.recognize_audio(self.tmp_file)
+                if text_result != "" and self.command_event_handler(text_result) is False:
+                    if self.text_queue.qsize() > self.def_queue_limit:
+                        print("Hit queue limit, just clear queue.")
+                        self.text_queue.queue.clear()
+                    self.text_queue.put(text_result)
+            except Exception as e:
+                print(e)
+
+                traceback_output = traceback.format_exc()
+                print(traceback_output)
+            finally:
+                pass
 
         stream.stop_stream()
         stream.close()

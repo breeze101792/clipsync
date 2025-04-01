@@ -132,7 +132,7 @@ function fSetup_audio()
 {
     fPrintHeader ${FUNCNAME[0]}
     local var_rel_path='dist'
-    local var_pkg_list=("funasr" "pyaudio" "torch" "torchaudio" "webrtcvad")
+    local var_pkg_list=("funasr" "pyaudio" "torch" "torchaudio" "webrtcvad", "opencc")
 
     if [ "${VAR_OS}" = 'win' ]
     then

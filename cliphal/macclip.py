@@ -13,7 +13,8 @@ class MacClip(ClipBase):
     def write_to_clipboard(self, output):
         process = subprocess.Popen(
             'pbcopy', env={'LANG': 'en_US.UTF-8'}, stdin=subprocess.PIPE)
-        process.communicate(output.encode('utf-8'))
+        # process.communicate(output.encode('utf-8'))
+        process.communicate(output)
 
     def read_from_clipboard(self):
         # return subprocess.check_output(

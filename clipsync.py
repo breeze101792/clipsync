@@ -16,24 +16,24 @@ from cliphal.asrclip import *
 
 def main():
     parser = OptionParser(usage='Usage: clipsync [options] ......')
-    parser.add_option("-a", "--audio-index", dest="device_index",
-                    help="Specify mic device index", action="store", default=-1)
-    parser.add_option("-l", "--mic-list", dest="mic_list",
-                    help="List mic devices", action="store_true", default=False)
-    parser.add_option("-t", "--test", dest="test",
-                    help="testing function", action="store_true")
-    parser.add_option("-d", "--debug", dest="debug",
-                    help="debug mode on!!", action="store_true", default=False)
-    parser.add_option("-i", "--server-ip", dest="server_ip", default=None,
-                    help="Specify server ip address", action="store")
-    parser.add_option("-p", "--server-port", dest="server_port", default=None, type='int',
-                    help="Specify server port", action="store")
-    parser.add_option("-s", "--start-server", dest="server", default=False,
-                    help="Start server", action="store_true")
-    parser.add_option("-m", "--clip-mode", dest="clip_mode",
-                      help="Choose clip mode(HAL), Mode: pyclip(windows)/clipboard(linux)/macclip(mac)/terminal/asrclip(audio)", action="store")
-    parser.add_option("-c", "--config-path", dest="config",
-                    help="Start server", action="store")
+parser.add_option("-a", "--audio-index", dest="device_index",
+                    help="Specify the microphone device index.", action="store", default=-1)
+parser.add_option("-l", "--mic-list", dest="mic_list",
+                    help="List available microphone devices.", action="store_true", default=False)
+parser.add_option("-t", "--test", dest="test",
+                    help="Run testing functions.", action="store_true")
+parser.add_option("-d", "--debug", dest="debug",
+                    help="Enable debug mode.", action="store_true", default=False)
+parser.add_option("-i", "--server-ip", dest="server_ip", default=None,
+                    help="Specify the server IP address.", action="store")
+parser.add_option("-p", "--server-port", dest="server_port", default=None, type='int',
+                    help="Specify the server port.", action="store")
+parser.add_option("-s", "--start-server", dest="server", default=False,
+                    help="Start the server.", action="store_true")
+parser.add_option("-m", "--clip-mode", dest="clip_mode",
+                      help="Choose the clip mode (HAL, pyclip, clipboard, macclip, terminal, asrclip). Mode: pyclip(windows)/clipboard(linux)/macclip(mac)/terminal/asrclip(audio)", action="store")
+parser.add_option("-c", "--config-path", dest="config",
+                    help="Specify the path to the configuration file.", action="store")
     # parser.add_option("-l", "--list", dest="list",
     #                 help="List words on wordbank", action="store_true")
     # parser.add_option("-L", "--word-level", dest="word_level",

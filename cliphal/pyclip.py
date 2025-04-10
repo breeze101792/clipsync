@@ -39,11 +39,13 @@ class PyClip(ClipBase):
     @staticmethod
     def isSupported():
         try:
-            return pyclip.paste()
+            # only try to check if working or not.
+            pyclip.paste()
         except Exception as e:
-            dbg_error(e)
-            traceback_output = traceback.format_exc()
-            dbg_error(traceback_output)
+            # dbg_debug(PyClip.getModeString() + ' not supported.')
+            # dbg_error(e)
+            # traceback_output = traceback.format_exc()
+            # dbg_error(traceback_output)
             return False
         return True
 

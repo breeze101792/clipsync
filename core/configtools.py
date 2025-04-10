@@ -10,7 +10,7 @@ class Config:
     # Read only variable
     version='0.3.3'
     program_name = 'Config Manager'
-    config_file = "./config.json"
+    config_file = os.path.expanduser("~/.clipsync.json")
     log_level = "Information"
     def __init__(self):
         pass

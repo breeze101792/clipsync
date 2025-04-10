@@ -13,9 +13,15 @@ class ClipManager:
     def __init__(self):
 
         dbg_info('Clip mode:', Config._args.clip_mode)
+
+        dbg_debug('MacClip(mac)       : ' , MacClip.isSupported())
+        dbg_debug('PyClip(win)        : ' , PyClip.isSupported())
+        dbg_debug('PyClipboard(linux) : ' , PyClipboard.isSupported())
+        dbg_debug('Terminal           : ' , Terminal.isSupported())
+        dbg_debug('ASRClip            : ' , ASRClip.isSupported())
+
         if MacClip.getModeString() == Config._args.clip_mode:
             self._clip_hal = MacClip()
-
         elif PyClip.getModeString() == Config._args.clip_mode:
             self._clip_hal = PyClip()
         elif PyClipboard.getModeString() == Config._args.clip_mode:
@@ -24,15 +30,15 @@ class ClipManager:
             self._clip_hal = Terminal()
         elif TestClip.getModeString() == Config._args.clip_mode:
             self._clip_hal = TestClip()
+        elif ASRClip.getModeString() == Config._args.clip_mode:
+            self._clip_hal = ASRClip(device_index = int(Config._args.device_index))
 
         elif MacClip.isSupported():
             self._clip_hal = MacClip()
-        # elif PyClip.isSupported():
-        #     self._clip_hal = PyClip()
+        elif PyClip.isSupported():
+            self._clip_hal = PyClip()
         elif PyClipboard.isSupported():
             self._clip_hal = PyClipboard()
-        elif ASRClip.getModeString() == Config._args.clip_mode:
-            self._clip_hal = ASRClip(device_index = int(Config._args.device_index))
         elif Terminal.isSupported():
             dbg_warning('Using Termianl Clips will not work on GUI System')
             self._clip_hal = Terminal()

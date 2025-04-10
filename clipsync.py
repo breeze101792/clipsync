@@ -34,12 +34,6 @@ def main():
                         help="Choose the clip mode (HAL, pyclip, clipboard, macclip, terminal, asrclip). Mode: pyclip(windows)/clipboard(linux)/macclip(mac)/terminal/asrclip(audio)", action="store")
     parser.add_option("-c", "--config-path", dest="config",
                         help="Specify the path to the configuration file.", action="store")
-    # parser.add_option("-l", "--list", dest="list",
-    #                 help="List words on wordbank", action="store_true")
-    # parser.add_option("-L", "--word-level", dest="word_level",
-    #                 help="Setup Word Level", action="store")
-    #parser.add_option("-L", "--word-level", dest="word_level",
-    #                help="Setup Word Level", default=[], action="append")
 
     (options, args) = parser.parse_args()
     # Config
@@ -47,6 +41,7 @@ def main():
     cfg_mgr = ConfigManager(Config)
     if options.config is not None:
         cfg_mgr.load(options.config)
+        cfg_mgr = os.path.expanduser(options.config)
     else:
         cfg_mgr.load()
 

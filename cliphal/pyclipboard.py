@@ -28,8 +28,10 @@ class PyClipboard(ClipBase):
     @staticmethod
     def isSupported():
         try:
-            return clipboard.paste()
+            # only try to check if working or not.
+            clipboard.paste()
         except Exception as e:
+            # dbg_debug(PyClip.getModeString() + ' not supported.')
             # dbg_error(e)
             # traceback_output = traceback.format_exc()
             # dbg_error(traceback_output)

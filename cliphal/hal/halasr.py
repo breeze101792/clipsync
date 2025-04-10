@@ -223,6 +223,10 @@ class ASRService:
         return recognized_text
 
     def listen_continuous(self):
+        # init model
+        if self.model is None:
+            self.__model_init()
+
         # 初始化 VAD
         vad = webrtcvad.Vad()
         vad.set_mode(self.VAD_MODE)

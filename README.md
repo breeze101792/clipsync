@@ -1,32 +1,71 @@
-# clipsync
+# Clipsync - Cross-Platform Clipboard Synchronization Tool
 
-`clipsync` is a versatile, cross-platform clipboard synchronization tool designed to seamlessly share clipboard content across multiple devices. It operates with a client-server architecture, allowing various clients to connect to a central server and exchange clipboard data securely using cryptography. Beyond standard text and image clipboard functionalities, `clipsync` also supports advanced features like audio input processing (ASRClip).
+## Description
+Clipsync is a command-line utility designed to synchronize clipboard content across multiple devices over a network. It can operate as a server, broadcasting clipboard changes to connected clients, or as a client, sending its local clipboard content to the server and receiving updates from it. It supports various clipboard mechanisms and encrypts data for secure transmission.
 
 ## Features
-
-*   **Cross-Platform Compatibility**: Works on Windows, Linux, and macOS.
-*   **Client-Server Architecture**: Synchronize clipboards between multiple devices.
-*   **Secure Communication**: Encrypts clipboard data using cryptography.
-*   **Multiple Clipboard Modes**: Supports native clipboard access, terminal-based operations, and audio input.
-*   **Audio Input (ASRClip)**: Integrates speech-to-text functionality for clipboard content.
-*   **Standalone Installer**: Easily generate executables for distribution.
+*   Cross-platform clipboard synchronization.
+*   Server and client modes of operation.
+*   Support for multiple clipboard backends (macOS, Windows, Linux, Terminal, ASR for audio input).
+*   Configurable server IP and port.
+*   Debug logging levels.
+*   Encryption of clipboard content during network transmission.
+*   Automatic reconnection for clients.
 
 ## Usage
 
-### Installation & Setup
-
-To set up the necessary Python dependencies (e.g., `clipboard`, `pyinstaller`, `cryptography`):
-
+### To list available microphone devices (for ASRClip mode):
 ```bash
-./setup.sh -s
+./clipsync.py --mic-list
 ```
 
-### Generating Standalone Installer (Windows)
-
-To generate a standalone Windows executable using PyInstaller:
-
+### To start Clipsync as a server:
 ```bash
-./setup.sh -w -i
+./clipsync.py --start-server [-i <server_ip>] [-p <server_port>] [-d]
 ```
 
-This will create an executable in the `dist` directory.
+### To start Clipsync as a client:
+```bash
+./clipsync.py [-i <server_ip>] [-p <server_port>] [-m <clip_mode>] [-a <audio_device_index>] [-d]
+```
+
+## Options
+*   `-a, --audio-index <index>` : Specify the microphone device index for ASRClip mode.
+*   `-l, --mic-list`            : List available microphone devices and exit.
+*   `-t, --test`                : Run testing functions (currently not detailed).
+*   `-d, --debug`               : Enable debug mode for more verbose logging.
+*   `-i, --server-ip <ip>`      : Specify the server IP address (default: 0.0.0.0 for server, auto-discover for client).
+*   `-p, --server-port <port>`  : Specify the server port (default: 11320).
+*   `-s, --start-server`        : Start Clipsync in server mode.
+*   `-m, --clip-mode <mode>`    : Choose the clipboard mode.
+                                  Supported modes:
+                                    - pyclip (Windows)
+                                    - clipboard (Linux)
+                                    - macclip (macOS)
+                                    - terminal (for terminal-based clipboard)
+                                    - asrclip (for audio-to-text clipboard)
+*   `-c, --config-path <path>`  : Specify a custom path to the configuration file.
+
+## Configuration
+Clipsync uses a configuration file located at `~/.clipsync.json` by default.
+This file stores settings such as server IP, port, and log level.
+You can override these settings using command-line options.
+
+## Example
+1.  Start the server on a specific IP and port with debug logging:
+    ```bash
+    ./clipsync.py -s -i 192.168.1.100 -p 12345 -d
+    ```
+
+2.  Start a client connecting to the server, using macclip mode:
+    ```bash
+    ./clipsync.py -i 192.168.1.100 -p 12345 -m macclip
+    ```
+
+3.  List audio devices and then start a client using ASRClip with a specific device:
+    ```bash
+    ./clipsync.py -l
+    # (After identifying the index, e.g., 0)
+    ./clipsync.py -a 0 -m asrclip
+    ```
+

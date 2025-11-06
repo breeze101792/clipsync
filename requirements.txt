@@ -1,0 +1,9 @@
+clipboard
+pyinstaller
+cryptography
+funasr
+pyaudio
+torch
+torchaudio
+webrtcvad
+opencc
